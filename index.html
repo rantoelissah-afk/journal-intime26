@@ -1,0 +1,3572 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Journal Intime</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&family=Kalam:wght@300;400;700&family=Pacifico&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f9f5f0;
+            color: #333;
+            line-height: 1.4;
+            padding: 15px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #8a6d3b 0%, #d4a762 100%);
+            color: white;
+            padding: 25px 35px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.3rem;
+            margin-bottom: 8px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+        
+        .subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+        
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            min-height: 550px;
+        }
+        
+        .calendar-section {
+            flex: 1;
+            min-width: 280px;
+            padding: 25px;
+            background-color: #fefcf8;
+            border-right: 1px solid #eee;
+        }
+        
+        .journal-section {
+            flex: 2;
+            min-width: 480px;
+            padding: 25px;
+            max-height: 750px;
+            overflow-y: auto;
+            background-image: repeating-linear-gradient(
+                transparent,
+                transparent 27px,
+                rgba(180, 180, 200, 0.08) 27px,
+                rgba(180, 180, 200, 0.08) 28px
+            );
+            background-position: 0 25px;
+        }
+        
+        h2 {
+            color: #8a6d3b;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #f0e6d3;
+            font-size: 1.6rem;
+        }
+        
+        .calendar {
+            background-color: white;
+            border-radius: 8px;
+            padding: 18px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .month-year {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #8a6d3b;
+        }
+        
+        .calendar-nav {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .nav-btn {
+            background-color: #f0e6d3;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #8a6d3b;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+        }
+        
+        .nav-btn:hover {
+            background-color: #d4a762;
+            color: white;
+        }
+        
+        .weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            margin-bottom: 8px;
+            text-align: center;
+            font-weight: 600;
+            color: #8a6d3b;
+            font-size: 0.9rem;
+        }
+        
+        .days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+        }
+        
+        .day {
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .day:hover {
+            background-color: #f0e6d3;
+        }
+        
+        .day.empty {
+            background-color: transparent;
+            cursor: default;
+        }
+        
+        .day.today {
+            background-color: #d4a762;
+            color: white;
+            font-weight: 700;
+        }
+        
+        .day.has-entry {
+            background-color: #8a6d3b;
+            color: white;
+            position: relative;
+        }
+        
+        .day.has-entry::after {
+            content: '';
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 5px;
+            height: 5px;
+            background-color: #ffd700;
+            border-radius: 50%;
+        }
+        
+        .day.selected {
+            border: 2px solid #8a6d3b;
+            background-color: #f9f5f0;
+            color: #8a6d3b;
+            font-weight: 700;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 35px;
+            color: #8a6d3b;
+            font-size: 1.1rem;
+        }
+        
+        .loading i {
+            margin-right: 8px;
+        }
+        
+        .journal-entry {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 8px;
+            padding: 20px 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border-left: 6px solid #d4a762;
+            margin-bottom: 15px;
+            position: relative;
+        }
+        
+        .journal-entry::before {
+            content: "";
+            position: absolute;
+            left: -6px;
+            top: 0;
+            bottom: 0;
+            width: 6px;
+            background: linear-gradient(to bottom, #d4a762, #8a6d3b);
+            border-radius: 6px 0 0 6px;
+        }
+        
+        .entry-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 2px dashed #e0d6c2;
+        }
+        
+        .entry-date {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #8a6d3b;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .entry-mood {
+            font-size: 1.8rem;
+        }
+        
+        .entry-content {
+            font-size: 0.9rem;
+            line-height: 1.3;
+            color: #444;
+        }
+        
+        /* Titres de section centrés avec couleurs harmonisées */
+        .section-title {
+            background: linear-gradient(90deg, rgba(255, 152, 0, 0.15), rgba(255, 255, 255, 0.2));
+            padding: 8px 12px;
+            margin: 12px 0 8px 0;
+            border-radius: 6px;
+            color: #ff9800;
+            font-weight: 700;
+            font-size: 1rem;
+            border-left: 4px solid #ff9800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+        
+        .section-title i {
+            font-size: 1.2rem;
+        }
+        
+        /* Couleurs de fond des sections avec titres correspondants */
+        .section-sommeil {
+            background-color: rgba(141, 110, 99, 0.15) !important;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 18px;
+            border: 2px solid rgba(141, 110, 99, 0.3);
+        }
+        
+        .section-sommeil .section-title {
+            background: linear-gradient(90deg, rgba(141, 110, 99, 0.3), rgba(255, 255, 255, 0.2)) !important;
+            color: #8d6e63 !important;
+            border-left-color: #8d6e63 !important;
+        }
+        
+        .section-matin {
+            background-color: rgba(255, 193, 7, 0.15) !important;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 18px;
+            border: 2px solid rgba(255, 193, 7, 0.3);
+        }
+        
+        .section-matin .section-title {
+            background: linear-gradient(90deg, rgba(255, 193, 7, 0.3), rgba(255, 255, 255, 0.2)) !important;
+            color: #ffc107 !important;
+            border-left-color: #ffc107 !important;
+        }
+        
+        .section-spirituel {
+            background-color: rgba(156, 39, 176, 0.15) !important;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 18px;
+            border: 2px solid rgba(156, 39, 176, 0.3);
+        }
+        
+        .section-spirituel .section-title {
+            background: linear-gradient(90deg, rgba(156, 39, 176, 0.3), rgba(255, 255, 255, 0.2)) !important;
+            color: #9c27b0 !important;
+            border-left-color: #9c27b0 !important;
+        }
+        
+        .section-alimentation {
+            background-color: rgba(244, 67, 54, 0.15) !important;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 18px;
+            border: 2px solid rgba(244, 67, 54, 0.3);
+        }
+        
+        .section-alimentation .section-title {
+            background: linear-gradient(90deg, rgba(244, 67, 54, 0.3), rgba(255, 255, 255, 0.2)) !important;
+            color: #f44336 !important;
+            border-left-color: #f44336 !important;
+        }
+        
+        .section-travail {
+            background-color: rgba(121, 85, 72, 0.15) !important;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 18px;
+            border: 2px solid rgba(121, 85, 72, 0.3);
+        }
+        
+        .section-travail .section-title {
+            background: linear-gradient(90deg, rgba(121, 85, 72, 0.3), rgba(255, 255, 255, 0.2)) !important;
+            color: #795548 !important;
+            border-left-color: #795548 !important;
+        }
+        
+        .section-lecture {
+            background-color: rgba(33, 150, 243, 0.15) !important;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 18px;
+            border: 2px solid rgba(33, 150, 243, 0.3);
+        }
+        
+        .section-lecture .section-title {
+            background: linear-gradient(90deg, rgba(33, 150, 243, 0.3), rgba(255, 255, 255, 0.2)) !important;
+            color: #2196f3 !important;
+            border-left-color: #2196f3 !important;
+        }
+        
+        .section-activites {
+            background-color: rgba(0, 150, 136, 0.15) !important;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 18px;
+            border: 2px solid rgba(0, 150, 136, 0.3);
+        }
+        
+        .section-activites .section-title {
+            background: linear-gradient(90deg, rgba(0, 150, 136, 0.3), rgba(255, 255, 255, 0.2)) !important;
+            color: #009688 !important;
+            border-left-color: #009688 !important;
+        }
+        
+        .section-physique {
+            background-color: rgba(76, 175, 80, 0.15) !important;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 18px;
+            border: 2px solid rgba(76, 175, 80, 0.3);
+        }
+        
+        .section-physique .section-title {
+            background: linear-gradient(90deg, rgba(76, 175, 80, 0.3), rgba(255, 255, 255, 0.2)) !important;
+            color: #4caf50 !important;
+            border-left-color: #4caf50 !important;
+        }
+        
+        .section-menagere {
+            background-color: rgba(96, 125, 139, 0.15) !important;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 18px;
+            border: 2px solid rgba(96, 125, 139, 0.3);
+        }
+        
+        .section-menagere .section-title {
+            background: linear-gradient(90deg, rgba(96, 125, 139, 0.3), rgba(255, 255, 255, 0.2)) !important;
+            color: #607d8b !important;
+            border-left-color: #607d8b !important;
+        }
+        
+        .section-programme {
+            background-color: rgba(255, 87, 34, 0.15) !important;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 18px;
+            border: 2px solid rgba(255, 87, 34, 0.3);
+        }
+        
+        .section-programme .section-title {
+            background: linear-gradient(90deg, rgba(255, 87, 34, 0.3), rgba(255, 255, 255, 0.2)) !important;
+            color: #ff5722 !important;
+            border-left-color: #ff5722 !important;
+        }
+        
+        .section-nyako {
+            background-color: rgba(103, 58, 183, 0.15) !important;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 18px;
+            border: 2px solid rgba(103, 58, 183, 0.3);
+        }
+        
+        .section-nyako .section-title {
+            background: linear-gradient(90deg, rgba(103, 58, 183, 0.3), rgba(255, 255, 255, 0.2)) !important;
+            color: #673ab7 !important;
+            border-left-color: #673ab7 !important;
+        }
+        
+        .section-finance {
+            background-color: rgba(139, 195, 74, 0.15) !important;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 18px;
+            border: 2px solid rgba(139, 195, 74, 0.3);
+        }
+        
+        .section-finance .section-title {
+            background: linear-gradient(90deg, rgba(139, 195, 74, 0.3), rgba(255, 255, 255, 0.2)) !important;
+            color: #8bc34a !important;
+            border-left-color: #8bc34a !important;
+        }
+        
+        .section-deplacement {
+            background-color: rgba(255, 193, 7, 0.15) !important;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 18px;
+            border: 2px solid rgba(255, 193, 7, 0.3);
+        }
+        
+        .section-deplacement .section-title {
+            background: linear-gradient(90deg, rgba(255, 193, 7, 0.3), rgba(255, 255, 255, 0.2)) !important;
+            color: #ffc107 !important;
+            border-left-color: #ffc107 !important;
+        }
+        
+        .section-relation {
+            background-color: rgba(0, 188, 212, 0.15) !important;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 18px;
+            border: 2px solid rgba(0, 188, 212, 0.3);
+        }
+        
+        .section-relation .section-title {
+            background: linear-gradient(90deg, rgba(0, 188, 212, 0.3), rgba(255, 255, 255, 0.2)) !important;
+            color: #00bcd4 !important;
+            border-left-color: #00bcd4 !important;
+        }
+        
+        .section-periodique {
+            background-color: rgba(255, 64, 129, 0.15) !important;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 18px;
+            border: 2px solid rgba(255, 64, 129, 0.3);
+        }
+        
+        .section-periodique .section-title {
+            background: linear-gradient(90deg, rgba(255, 64, 129, 0.3), rgba(255, 255, 255, 0.2)) !important;
+            color: #ff4081 !important;
+            border-left-color: #ff4081 !important;
+        }
+        
+        .section-sante {
+            background-color: rgba(233, 30, 99, 0.15) !important;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 18px;
+            border: 2px solid rgba(233, 30, 99, 0.3);
+        }
+        
+        .section-sante .section-title {
+            background: linear-gradient(90deg, rgba(233, 30, 99, 0.3), rgba(255, 255, 255, 0.2)) !important;
+            color: #e91e63 !important;
+            border-left-color: #e91e63 !important;
+        }
+        
+        .section-poids {
+            background-color: rgba(156, 39, 176, 0.15) !important;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 18px;
+            border: 2px solid rgba(156, 39, 176, 0.3);
+        }
+        
+        .section-poids .section-title {
+            background: linear-gradient(90deg, rgba(156, 39, 176, 0.3), rgba(255, 255, 255, 0.2)) !important;
+            color: #9c27b0 !important;
+            border-left-color: #9c27b0 !important;
+        }
+        
+        .section-bilan {
+            background-color: rgba(76, 175, 80, 0.15) !important;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 18px;
+            border: 2px solid rgba(76, 175, 80, 0.3);
+        }
+        
+        .section-bilan .section-title {
+            background: linear-gradient(90deg, rgba(76, 175, 80, 0.3), rgba(255, 255, 255, 0.2)) !important;
+            color: #4caf50 !important;
+            border-left-color: #4caf50 !important;
+        }
+        
+        .entry-row {
+            display: flex;
+            margin-bottom: 4px;
+            padding: 4px 0;
+            align-items: flex-start;
+            min-height: 26px;
+        }
+        
+        .entry-row:last-child {
+            border-bottom: none;
+        }
+        
+        .entry-label {
+            flex: 0 0 170px;
+            font-weight: 600;
+            color: #8a6d3b;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding-right: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .entry-label i {
+            font-size: 0.9rem;
+            min-width: 18px;
+            text-align: center;
+        }
+        
+        /* Réduire le font-weight et couleur des réponses */
+        .entry-value {
+            flex: 1;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid #f0e6d3;
+            white-space: pre-line;
+            line-height: 1.3;
+            font-family: 'Pacifico', cursive;
+            font-weight: 300;
+            font-size: 0.95rem;
+            color: #666;
+        }
+        
+        /* Style gris clair pour les heures et durées */
+        .time-value {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+            font-weight: 600 !important;
+            color: #666 !important;
+            font-size: 0.95rem !important;
+            background-color: #f5f5f5 !important;
+            padding: 2px 6px !important;
+            border-radius: 3px !important;
+        }
+        
+        /* Carte pour heure de travail et durée */
+        .travail-time-card {
+            background-color: #f5f5f5 !important;
+            border: 1px solid #e0e0e0 !important;
+        }
+        
+        /* Réduire largeur des cartes réveil/coucher */
+        .compact-row-sommeil {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 6px;
+            justify-content: space-between;
+        }
+        
+        .compact-item-sommeil {
+            flex: 1;
+            min-width: 0;
+            max-width: 32%;
+            background-color: #f5f5f5;
+            padding: 6px 8px;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+            min-height: 36px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .compact-label-sommeil {
+            font-weight: 600;
+            color: #8a6d3b;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            min-width: 70px;
+            font-size: 0.85rem;
+        }
+        
+        .compact-label-sommeil i {
+            font-size: 0.8rem;
+        }
+        
+        .compact-value-sommeil {
+            flex: 1;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #666;
+            text-align: center;
+        }
+        
+        /* Style pour éléments "Au réveil" */
+        .aureveil-item {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+            font-size: 0.85rem !important;
+            line-height: 1.2;
+            margin-bottom: 2px;
+        }
+        
+        .compact-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 6px;
+        }
+        
+        .compact-item {
+            flex: 1;
+            background-color: #f5f5f5;
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid #e0e0e0;
+            min-height: 32px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .compact-label {
+            font-weight: 600;
+            color: #8a6d3b;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            min-width: 110px;
+            font-size: 0.9rem;
+        }
+        
+        .compact-label i {
+            font-size: 0.85rem;
+        }
+        
+        .compact-value {
+            flex: 1;
+            font-family: 'Pacifico', cursive;
+            font-weight: 300;
+            font-size: 0.95rem;
+            color: #666;
+        }
+        
+        /* Style pour activités spirituelles */
+        .spiritual-item {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #8a6d3b;
+            margin-bottom: 3px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .spiritual-time {
+            font-family: 'Segoe UI', sans-serif;
+            color: #2e7d32;
+            font-size: 0.8rem;
+            background-color: rgba(46, 125, 50, 0.1);
+            padding: 1px 6px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+        
+        .spiritual-time::before {
+            content: "⏰";
+            font-size: 0.9rem;
+        }
+        
+        /* Étoiles pour qualité de sommeil et fatigue */
+        .stars-container {
+            display: flex;
+            gap: 2px;
+            justify-content: center;
+            margin-top: 2px;
+        }
+        
+        .star {
+            font-size: 1.1rem;
+            color: #ddd;
+        }
+        
+        .star.filled {
+            color: #ffc107;
+        }
+        
+        .prayer-status {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 16px;
+            font-size: 9px;
+            margin-left: 4px;
+        }
+        
+        .prayer-ok {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .prayer-no {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .prayer-inprogress {
+            background-color: #ffc107;
+            color: black;
+        }
+        
+        .no-entry {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 350px;
+            color: #aaa;
+            text-align: center;
+        }
+        
+        .no-entry i {
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+            color: #e0d6c2;
+        }
+        
+        .no-entry p {
+            font-size: 1.1rem;
+            max-width: 280px;
+        }
+        
+        .data-source {
+            margin-top: 15px;
+            font-size: 0.85rem;
+            color: #999;
+            text-align: center;
+            padding: 8px;
+            background-color: #f9f5f0;
+            border-radius: 6px;
+        }
+        
+        .data-source a {
+            color: #8a6d3b;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .data-source a:hover {
+            text-decoration: underline;
+        }
+        
+        .stats {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #f9f5f0;
+            border-radius: 6px;
+            font-size: 0.8rem;
+        }
+        
+        .stats span {
+            font-weight: 600;
+            color: #8a6d3b;
+        }
+        
+        /* Style pour menstruation */
+        .menstruation-display {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            margin-top: 5px;
+        }
+        
+        .menstruation-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.85rem;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 4px 8px;
+            border-radius: 6px;
+            border: 1px solid #ffcdd2;
+        }
+        
+        .menstruation-emoji {
+            font-size: 1rem;
+        }
+        
+        /* Emoji menstruation */
+        .emoji-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 4px;
+        }
+        
+        .emoji-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.85rem;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 3px 6px;
+            border-radius: 4px;
+            border: 1px solid #f0e6d3;
+        }
+        
+        .emoji-icon {
+            font-size: 1rem;
+        }
+        
+        .cycle-header {
+            font-weight: bold;
+            margin-bottom: 3px;
+            color: #ff4081;
+            font-size: 0.85rem;
+        }
+        
+        .cycle-line {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+            flex-wrap: wrap;
+        }
+        
+        .cycle-title {
+            font-weight: bold;
+            color: #ff4081;
+            font-size: 0.85rem;
+        }
+        
+        .cycle-emojis {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        
+        .cycle-emojis span {
+            font-size: 0.9rem;
+        }
+        
+        .water-calculation {
+            margin-top: 3px;
+            padding: 3px 6px;
+            background-color: rgba(0, 188, 212, 0.1);
+            border-radius: 3px;
+            font-size: 0.8rem;
+            color: #0097a7;
+            border-left: 2px solid #00bcd4;
+        }
+        
+        /* Icônes de décoration pour les sections */
+        .section-decoration {
+            position: absolute;
+            opacity: 0.1;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        .decoration-sommeil {
+            top: 5px;
+            right: 10px;
+            font-size: 3.5rem;
+            color: #8d6e63;
+        }
+        
+        .decoration-matin {
+            top: 5px;
+            right: 10px;
+            font-size: 3.5rem;
+            color: #ffc107;
+        }
+        
+        .decoration-spirituel {
+            top: 5px;
+            right: 10px;
+            font-size: 3.5rem;
+            color: #9c27b0;
+        }
+        
+        .decoration-alimentation {
+            top: 5px;
+            right: 10px;
+            font-size: 3.5rem;
+            color: #f44336;
+        }
+        
+        .decoration-travail {
+            top: 5px;
+            right: 10px;
+            font-size: 3.5rem;
+            color: #795548;
+        }
+        
+        .decoration-lecture {
+            top: 5px;
+            right: 10px;
+            font-size: 3.5rem;
+            color: #2196f3;
+        }
+        
+        .decoration-activites {
+            top: 5px;
+            right: 10px;
+            font-size: 3.5rem;
+            color: #009688;
+        }
+        
+        .decoration-physique {
+            top: 5px;
+            right: 10px;
+            font-size: 3.5rem;
+            color: #4caf50;
+        }
+        
+        .decoration-menagere {
+            top: 5px;
+            right: 10px;
+            font-size: 3.5rem;
+            color: #607d8b;
+        }
+        
+        .decoration-programme {
+            top: 5px;
+            right: 10px;
+            font-size: 3.5rem;
+            color: #ff5722;
+        }
+        
+        .decoration-nyako {
+            top: 5px;
+            right: 10px;
+            font-size: 3.5rem;
+            color: #673ab7;
+        }
+        
+        .decoration-finance {
+            top: 5px;
+            right: 10px;
+            font-size: 3.5rem;
+            color: #8bc34a;
+        }
+        
+        .decoration-deplacement {
+            top: 5px;
+            right: 10px;
+            font-size: 3.5rem;
+            color: #ffc107;
+        }
+        
+        .decoration-relation {
+            top: 5px;
+            right: 10px;
+            font-size: 3.5rem;
+            color: #00bcd4;
+        }
+        
+        .decoration-periodique {
+            top: 5px;
+            right: 10px;
+            font-size: 3.5rem;
+            color: #ff4081;
+        }
+        
+        .decoration-sante {
+            top: 5px;
+            right: 10px;
+            font-size: 3.5rem;
+            color: #e91e63;
+        }
+        
+        .decoration-poids {
+            top: 5px;
+            right: 10px;
+            font-size: 3.5rem;
+            color: #9c27b0;
+        }
+        
+        .decoration-bilan {
+            top: 5px;
+            right: 10px;
+            font-size: 3.5rem;
+            color: #4caf50;
+        }
+        
+        /* Labels ménagers */
+        .menagere-label {
+            font-size: 0.85rem !important;
+            font-weight: 500 !important;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .menagere-time {
+            font-size: 0.75rem;
+            color: #795548;
+            margin-left: 5px;
+            font-weight: normal;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+        }
+        
+        .menagere-value {
+            font-size: 0.9rem;
+            color: #555;
+            font-weight: 300;
+            margin-left: 15px;
+        }
+        
+        /* Tableau pour poids et mensuration */
+        .measurement-table {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 8px;
+        }
+        
+        .measurement-item {
+            background-color: #f5f5f5;
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #e0e0e0;
+            text-align: center;
+        }
+        
+        .measurement-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #8a6d3b;
+            margin-bottom: 4px;
+        }
+        
+        .measurement-value {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #333;
+        }
+        
+        /* Style pour repas encadrés */
+        .meal-container {
+            border: 2px solid #f0e6d3;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 15px;
+            background-color: #f5f5f5;
+        }
+        
+        .meal-title {
+            font-weight: 600;
+            color: #8a6d3b;
+            margin-bottom: 8px;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        /* Heure et lieu sur même ligne avec fond gris clair */
+        .meal-time-location {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+        
+        .meal-time-card, .meal-location-card {
+            flex: 1;
+            background-color: #f5f5f5 !important;
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .meal-content {
+            background-color: #ffffff;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #f0e6d3;
+            margin-top: 8px;
+        }
+        
+        .meal-content-label {
+            font-weight: 600;
+            color: #8a6d3b;
+            margin-bottom: 4px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .meal-content-value {
+            font-family: 'Pacifico', cursive;
+            font-weight: 300;
+            font-size: 0.95rem;
+            color: #666;
+        }
+        
+        /* Nouveau style pour travail */
+        .travail-header {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+        
+        .travail-type {
+            flex: 1;
+            font-weight: 600;
+            color: #795548;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        /* Heure et durée travail sur même ligne avec carte gris clair */
+        .travail-time-container {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+        
+        .travail-time-card {
+            flex: 1;
+            background-color: #f5f5f5 !important;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0 !important;
+            display: flex;
+            align-items: center;
+        }
+        
+        .travail-content-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 10px;
+        }
+        
+        .travail-content-item {
+            flex: 1;
+            background-color: #f5f5f5;
+            padding: 8px 12px;
+            border-radius: 5px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        /* Emojis pour menstruation */
+        .menstruation-emojis {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 5px;
+        }
+        
+        .menstruation-emoji {
+            font-size: 1.2rem;
+            margin-right: 5px;
+        }
+        
+        .menstruation-item {
+            display: inline-flex;
+            align-items: center;
+            margin-right: 8px;
+            margin-bottom: 5px;
+            padding: 2px 8px;
+            background: #f5f5f5;
+            border-radius: 4px;
+            border: 1px solid #e0e0e0;
+            font-size: 0.85rem;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .calendar-section, .journal-section {
+                width: 100%;
+            }
+            
+            .calendar-section {
+                border-right: none;
+                border-bottom: 1px solid #eee;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .entry-date {
+                font-size: 1.1rem;
+            }
+            
+            .entry-label {
+                flex: 0 0 130px;
+            }
+            
+            .journal-section {
+                max-height: none;
+                overflow-y: visible;
+            }
+            
+            .compact-row-sommeil {
+                flex-direction: column;
+                gap: 6px;
+            }
+            
+            .compact-item-sommeil {
+                max-width: 100%;
+            }
+            
+            .meal-time-location {
+                flex-direction: column;
+                gap: 6px;
+            }
+            
+            .travail-time-container {
+                flex-direction: column;
+                gap: 6px;
+            }
+            
+            .travail-content-row {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .measurement-table {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 6px;
+            margin: 15px 0;
+            border: 1px solid #f5c6cb;
+            font-size: 0.9rem;
+        }
+        
+        .triple-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 6px;
+        }
+        
+        .triple-item {
+            flex: 1;
+            background-color: #f5f5f5;
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid #e0e0e0;
+            min-height: 32px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .double-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 6px;
+        }
+        
+        .double-item {
+            flex: 1;
+            background-color: #f5f5f5;
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid #e0e0e0;
+            min-height: 32px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .handwriting {
+            font-family: 'Pacifico', cursive;
+            font-weight: 300;
+        }
+        
+        /* Icônes de couleur */
+        .fa-moon { color: #8d6e63; }
+        .fa-sun { color: #ffc107; }
+        .fa-pray { color: #9c27b0; }
+        .fa-utensils { color: #f44336; }
+        .fa-briefcase { color: #795548; }
+        .fa-book-reader { color: #2196f3; }
+        .fa-list-alt { color: #009688; }
+        .fa-running { color: #4caf50; }
+        .fa-broom { color: #607d8b; }
+        .fa-calendar-check { color: #ff5722; }
+        .fa-user { color: #673ab7; }
+        .fa-money-bill-wave { color: #8bc34a; }
+        .fa-car { color: #ffc107; }
+        .fa-map-marker-alt { color: #e91e63; }
+        .fa-comments { color: #00bcd4; }
+        .fa-calendar-day { color: #ff4081; }
+        .fa-heartbeat { color: #f44336; }
+        .fa-weight-scale { color: #9c27b0; }
+        .fa-chart-line { color: #4caf50; }
+        .fa-bed { color: #8d6e63; }
+        .fa-cloud-moon { color: #9c27b0; }
+        .fa-clock { color: #607d8b; }
+        .fa-star { color: #ffc107; }
+        .fa-tasks { color: #009688; }
+        .fa-bullseye { color: #f44336; }
+        .fa-spa { color: #9c27b0; }
+        .fa-hands-praying { color: #673ab7; }
+        .fa-book-bible { color: #795548; }
+        .fa-brain { color: #2196f3; }
+        .fa-flag { color: #4caf50; }
+        .fa-church { color: #8a6d3b; }
+        .fa-graduation-cap { color: #ff5722; }
+        .fa-hands { color: #ffc107; }
+        .fa-coffee { color: #795548; }
+        .fa-utensil-spoon { color: #f44336; }
+        .fa-dinner { color: #9c27b0; }
+        .fa-apple-alt { color: #4caf50; }
+        .fa-plus-circle { color: #ffc107; }
+        .fa-info-circle { color: #2196f3; }
+        .fa-tint { color: #00bcd4; }
+        .fa-glass { color: #8a6d3b; }
+        .fa-wine-bottle { color: #673ab7; }
+        .fa-clipboard-list { color: #009688; }
+        .fa-bookmark { color: #ff5722; }
+        .fa-file-alt { color: #607d8b; }
+        .fa-hourglass { color: #ffc107; }
+        .fa-heading { color: #2196f3; }
+        .fa-sticky-note { color: #8bc34a; }
+        .fa-tv { color: #9c27b0; }
+        .fa-home { color: #795548; }
+        .fa-user-friends { color: #00bcd4; }
+        .fa-users { color: #ff4081; }
+        .fa-calendar-star { color: #ffc107; }
+        .fa-calendar { color: #2196f3; }
+        .fa-shopping-cart { color: #4caf50; }
+        .fa-receipt { color: #607d8b; }
+        .fa-map-marked-alt { color: #f44336; }
+        .fa-bus { color: #ffc107; }
+        .fa-route { color: #009688; }
+        .fa-handshake { color: #9c27b0; }
+        .fa-heart { color: #e91e63; }
+        .fa-comment-dots { color: #00bcd4; }
+        .fa-female { color: #ff4081; }
+        .fa-glasses { color: #2196f3; }
+        .fa-bug { color: #4caf50; }
+        .fa-bolt { color: #ffc107; }
+        .fa-credit-card { color: #8a6d3b; }
+        .fa-shower { color: #00bcd4; }
+        .fa-gem { color: #ffc107; }
+        .fa-head-side-cough { color: #f44336; }
+        .fa-ruler { color: #607d8b; }
+        .fa-exclamation-triangle { color: #ffc107; }
+        .fa-times-circle { color: #f44336; }
+        .fa-ellipsis-h { color: #9c27b0; }
+        .fa-gift { color: #ff4081; }
+        .fa-smile { color: #ffc107; }
+        .fa-camera { color: #2196f3; }
+        .fa-link { color: #009688; }
+        .fa-clock-o { color: #795548; }
+        .fa-list-ol { color: #8a6d3b; }
+        .fa-user-clock { color: #00bcd4; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-book-open"></i> Mon Journal Intime</h1>
+            <p class="subtitle">Feuilleter les pages de ma vie, jour après jour</p>
+        </header>
+        
+        <div class="main-content">
+            <section class="calendar-section">
+                <h2><i class="fas fa-calendar-alt"></i> Calendrier</h2>
+                <div class="calendar">
+                    <div class="calendar-header">
+                        <button class="nav-btn prev-month" title="Mois précédent"><i class="fas fa-chevron-left"></i></button>
+                        <div class="month-year">Mois 2023</div>
+                        <button class="nav-btn next-month" title="Mois suivant"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                    
+                    <div class="weekdays">
+                        <div>Lun</div>
+                        <div>Mar</div>
+                        <div>Mer</div>
+                        <div>Jeu</div>
+                        <div>Ven</div>
+                        <div>Sam</div>
+                        <div>Dim</div>
+                    </div>
+                    
+                    <div class="days" id="calendar-days">
+                        <!-- Les jours seront générés dynamiquement -->
+                    </div>
+                </div>
+                
+                <div class="stats" id="calendar-stats">
+                    <div><span>0</span> entrées chargées</div>
+                    <div><span id="current-month-count">0</span> entrées ce mois-ci</div>
+                </div>
+                
+                <div class="data-source">
+                    Données extraites de <a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vTMgDO2dFTZVN5sLUkyiT69SnPmqVcD5AQNAvZp3jp6h_qyQ8FZw3CRQ_eQ8xWJE-ySDxsXPy-t0HD4/pub?output=csv" target="_blank">Google Sheets</a>
+                </div>
+            </section>
+            
+            <section class="journal-section">
+                <h2><i class="fas fa-book"></i> Entrée du journal</h2>
+                <div id="journal-display">
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin"></i> Chargement des données depuis Google Sheets...
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let journalData = [];
+        let currentDate = new Date();
+        let currentMonth = currentDate.getMonth();
+        let currentYear = currentDate.getFullYear();
+        let csvHeaders = [];
+        
+        // Mise à jour avec le nouveau lien
+        const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTMgDO2dFTZVN5sLUkyiT69SnPmqVcD5AQNAvZp3jp6h_qyQ8FZw3CRQ_eQ8xWJE-ySDxsXPy-t0HD4/pub?output=csv";
+        
+        // Mapping des icônes pour les sections
+        const sectionIcons = {
+            'SOMMEIL': 'fa-moon',
+            'AU MATIN': 'fa-sun',
+            'SPIRITUEL': 'fa-pray',
+            'ALIMENTATION': 'fa-utensils',
+            'TRAVAIL': 'fa-briefcase',
+            'ACTIVITE LECTURE': 'fa-book-reader',
+            'AUTRES ACTIVITES': 'fa-list-alt',
+            'ACTIVITE PHYSIQUE': 'fa-running',
+            'ACTIVITE MENAGERE': 'fa-broom',
+            'PROGRAMME': 'fa-calendar-check',
+            'NY AKO': 'fa-user',
+            'FINANCE': 'fa-money-bill-wave',
+            'DEPLACEMENT': 'fa-car',
+            'LOCALISATION': 'fa-map-marker-alt',
+            'RELATION & COMMUNICATION': 'fa-comments',
+            'RELATION&COMM': 'fa-comments',
+            'PERIODIQUE': 'fa-calendar-day',
+            'SANTE ,SOIN,HYGIENE': 'fa-heartbeat',
+            'SANTE, SOIN, HYGIENE': 'fa-heartbeat',
+            'POIDS ,MENSURATION': 'fa-weight-scale',
+            'POIDS & MENSURATION': 'fa-weight-scale',
+            'BILAN PERSONNEL DE LA JOURNEE': 'fa-chart-line'
+        };
+        
+        // Normalisation des noms de colonnes pour regrouper les données
+        const columnGroups = {
+            'au_reveil': /^au\s*reveil\s*\[\d+\]/i,
+            'activite_spirituel': /^activit[ée]\s*spirituel\s*\[/i,
+            'sujet_priere': /^sujet\s*de\s*pri[èe]re\s*\d+/i,
+            'priere_ok': /^pri[èe]re\s*ok\s*\[/i,
+            'activite_menagere': /^activit[ée]\s*m[ée]nag[èe]re\s*:/i,
+            'monstruation': /^monstruation\s*\[/i
+        };
+        
+        // Dictionnaire pour la menstruation
+        const menstruationEmojis = {
+            'j+j+1': '📅',
+            'douleur': '😣',
+            'abondance': '💦',
+            'normal': '✅',
+            'à la maison': '🏠',
+            'chez moi': '🏠',
+            'maison': '🏠',
+            'dehors': '🚪',
+            'extérieur': '🚪',
+            'debordement': '⚠️',
+            'déborde': '⚠️',
+            'serviette hygienique': '🩸',
+            'serviette': '🩸',
+            'tissus': '🧻',
+            'tissue': '🧻',
+            'jour': '📅',
+            'j+': '📅'
+        };
+        
+        // Emojis pour activités spirituelles
+        function getSpiritualEmoji(activityName) {
+            const emojis = {
+                'Lecture Bible': '📖',
+                'Priére perso': '🙏',
+                'Ecoute mana': '🎧',
+                'Méditation': '🧘',
+                'Chant': '🎵',
+                'Culte': '⛪',
+                'Témoignage': '💬',
+                'Étude': '📚',
+                'Bible anglais': '📖🇬🇧',
+                'Louange': '🙌',
+                'Ecoute bible': '🎧📖'
+            };
+            
+            for (const [key, emoji] of Object.entries(emojis)) {
+                if (activityName.includes(key)) return emoji;
+            }
+            
+            return '✨';
+        }
+        
+        // Fonction pour normaliser une date
+        function normalizeDate(date) {
+            return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+        }
+        
+        function datesAreEqual(date1, date2) {
+            const normalized1 = normalizeDate(date1);
+            const normalized2 = normalizeDate(date2);
+            return normalized1.getTime() === normalized2.getTime();
+        }
+        
+        function getDateKey(date) {
+            const normalized = normalizeDate(date);
+            return normalized.toISOString().split('T')[0];
+        }
+        
+        // Fonction pour normaliser une clé (sans supprimer les accents pour correspondre exactement)
+        function normalizeKey(key) {
+            return key.toLowerCase()
+                .replace(/\s+/g, '_')
+                .replace(/[^a-z0-9_éèêëàâäôöûüç]/g, '')
+                .trim();
+        }
+        
+        // Fonction pour calculer le total d'eau bue
+        function calculateWaterTotal(waterStr) {
+            if (!waterStr) return null;
+            
+            const cleanStr = waterStr.replace(/\s+/g, '');
+            
+            const pattern = /(\d*\.?\d+)\s*[x\*]?\s*(\d+)/g;
+            let matches;
+            let lastMatch = null;
+            
+            while ((matches = pattern.exec(cleanStr)) !== null) {
+                lastMatch = matches;
+            }
+            
+            if (lastMatch && lastMatch.length >= 3) {
+                const quantity = parseFloat(lastMatch[1]);
+                const count = parseInt(lastMatch[2]);
+                
+                if (!isNaN(quantity) && !isNaN(count)) {
+                    const total = quantity * count;
+                    return {
+                        quantity: quantity,
+                        count: count,
+                        total: total.toFixed(2),
+                        display: `${quantity} × ${count} = ${total.toFixed(2)}L`
+                    };
+                }
+            }
+            
+            return null;
+        }
+        
+        // Fonction pour créer des étoiles de qualité de sommeil ou fatigue
+        function createStars(value) {
+            if (!value) return '';
+            
+            const qualityNum = parseInt(value);
+            if (isNaN(qualityNum) || qualityNum < 1 || qualityNum > 5) return value;
+            
+            let starsHTML = '<div class="stars-container">';
+            
+            for (let i = 1; i <= 5; i++) {
+                if (i <= qualityNum) {
+                    starsHTML += '<span class="star filled">★</span>';
+                } else {
+                    starsHTML += '<span class="star">☆</span>';
+                }
+            }
+            
+            starsHTML += '</div>';
+            return starsHTML;
+        }
+        
+        // Fonction pour extraire le temps d'une activité spirituelle
+        function extractSpiritualTime(value) {
+            if (!value) return '';
+            
+            const timeMatch = value.match(/(\d{1,2}[:.]?\d{0,2}\s*(h|min|sec)?)/i);
+            if (timeMatch) {
+                const time = timeMatch[0];
+                return `<span class="spiritual-time">${time}</span>`;
+            }
+            
+            return '';
+        }
+        
+        // Fonction pour extraire le temps d'une tâche ménagère
+        function extractMenagereTime(value) {
+            if (!value) return '';
+            
+            const timeMatch = value.match(/(\d+)\s*(min|minutes|m|h|heures|hr|hour)/i);
+            if (timeMatch) {
+                const amount = timeMatch[1];
+                const unit = timeMatch[2].toLowerCase();
+                
+                if (unit === 'h' || unit === 'heures' || unit === 'hr' || unit === 'hour') {
+                    return `<span class="menagere-time"><i class="fas fa-clock-o"></i> ${amount}h</span>`;
+                } else {
+                    return `<span class="menagere-time"><i class="fas fa-clock-o"></i> ${amount}min</span>`;
+                }
+            }
+            
+            return '';
+        }
+        
+        // Fonction pour charger les données depuis Google Sheets
+        async function loadJournalData() {
+            try {
+                showLoading(true);
+                
+                const proxyUrl = 'https://api.allorigins.win/raw?url=';
+                const encodedSheetUrl = encodeURIComponent(sheetUrl);
+                
+                const response = await fetch(proxyUrl + encodedSheetUrl, {
+                    headers: {
+                        'Accept': 'text/csv'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Erreur HTTP: ${response.status}`);
+                }
+                
+                const csvText = await response.text();
+                
+                if (!csvText || csvText.trim() === '') {
+                    throw new Error("Le fichier CSV est vide");
+                }
+                
+                console.log("Texte CSV brut (premiers 500 caractères):", csvText.substring(0, 500));
+                
+                const { headers, rows } = parseCSV(csvText);
+                
+                if (rows.length === 0) {
+                    throw new Error("Aucune donnée trouvée dans le fichier CSV");
+                }
+                
+                csvHeaders = headers;
+                
+                console.log("En-têtes CSV:", headers);
+                console.log("Nombre de lignes:", rows.length);
+                
+                for (let i = 0; i < rows.length; i++) {
+                    try {
+                        const row = rows[i];
+                        
+                        let dateStr = '';
+                        let dateColIndex = -1;
+                        
+                        for (let j = 0; j < headers.length; j++) {
+                            if (headers[j].trim() === "Date") {
+                                dateStr = row[j] || '';
+                                dateColIndex = j;
+                                break;
+                            }
+                        }
+                        
+                        if (dateColIndex === -1) {
+                            const dateColNames = ['date', 'jour', 'timestamp', 'time', 'datetime'];
+                            for (let j = 0; j < headers.length; j++) {
+                                const headerLower = headers[j].toLowerCase();
+                                if (dateColNames.some(name => headerLower.includes(name))) {
+                                    dateStr = row[j] || '';
+                                    dateColIndex = j;
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        if (dateColIndex === -1 && row.length > 0) {
+                            dateStr = row[0] || '';
+                            dateColIndex = 0;
+                        }
+                        
+                        console.log(`Ligne ${i+1}: dateStr = "${dateStr}"`);
+                        
+                        let date = parseDate(dateStr);
+                        
+                        if (date) {
+                            const entry = { 
+                                date: normalizeDate(date),
+                                rawData: {},
+                                groupedData: {}
+                            };
+                            
+                            for (let j = 0; j < headers.length; j++) {
+                                const header = headers[j].trim();
+                                const value = j < row.length ? row[j] || '' : '';
+                                
+                                const key = normalizeKey(header);
+                                
+                                if (value !== '' && value.trim() !== '') {
+                                    entry.rawData[key] = value.trim();
+                                    
+                                    let grouped = false;
+                                    for (const [groupName, pattern] of Object.entries(columnGroups)) {
+                                        if (pattern.test(header)) {
+                                            if (!entry.groupedData[groupName]) {
+                                                entry.groupedData[groupName] = [];
+                                            }
+                                            entry.groupedData[groupName].push({
+                                                key: key,
+                                                header: header,
+                                                value: value.trim()
+                                            });
+                                            grouped = true;
+                                            break;
+                                        }
+                                    }
+                                    
+                                    if (!grouped && j !== dateColIndex) {
+                                        if (!entry.groupedData.other) {
+                                            entry.groupedData.other = [];
+                                        }
+                                        entry.groupedData.other.push({
+                                            key: key,
+                                            header: header,
+                                            value: value.trim()
+                                        });
+                                    }
+                                }
+                            }
+                            
+                            journalData.push(entry);
+                            console.log(`Entrée ajoutée pour la date: ${date.toLocaleDateString()}`);
+                        } else {
+                            console.warn(`Date non reconnue à la ligne ${i+1}: "${dateStr}"`);
+                        }
+                    } catch (rowError) {
+                        console.warn(`Erreur sur la ligne ${i+1}:`, rowError);
+                    }
+                }
+                
+                console.log(`Données chargées: ${journalData.length} entrées`);
+                
+                updateStats();
+                initCalendar();
+                
+                if (journalData.length > 0) {
+                    const normalizedCurrentDate = normalizeDate(currentDate);
+                    showEntryForDate(normalizedCurrentDate);
+                } else {
+                    showNoDataMessage();
+                }
+                
+            } catch (error) {
+                console.error('Erreur lors du chargement des données:', error);
+                showErrorMessage(error);
+                
+                tryFallbackMethod();
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        // Méthode de secours pour charger les données
+        async function tryFallbackMethod() {
+            try {
+                console.log("Tentative de méthode de secours...");
+                
+                const fallbackProxy = 'https://cors-anywhere.herokuapp.com/';
+                const response = await fetch(fallbackProxy + sheetUrl, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                
+                if (response.ok) {
+                    const csvText = await response.text();
+                    processCSVData(csvText);
+                } else {
+                    showManualUploadOption();
+                }
+            } catch (fallbackError) {
+                console.error("Méthode de secours échouée:", fallbackError);
+                showManualUploadOption();
+            }
+        }
+        
+        // Traiter les données CSV
+        function processCSVData(csvText) {
+            const { headers, rows } = parseCSV(csvText);
+            csvHeaders = headers;
+            
+            journalData = [];
+            
+            for (let i = 0; i < rows.length; i++) {
+                const row = rows[i];
+                let dateStr = '';
+                
+                for (let j = 0; j < headers.length; j++) {
+                    if (headers[j].trim().toLowerCase() === 'date') {
+                        dateStr = row[j] || '';
+                        break;
+                    }
+                }
+                
+                if (!dateStr && row.length > 0) {
+                    dateStr = row[0];
+                }
+                
+                const date = parseDate(dateStr);
+                if (date) {
+                    const entry = { 
+                        date: normalizeDate(date),
+                        rawData: {},
+                        groupedData: {}
+                    };
+                    
+                    for (let j = 0; j < headers.length; j++) {
+                        const header = headers[j].trim();
+                        const value = j < row.length ? row[j] || '' : '';
+                        const key = normalizeKey(header);
+                        
+                        if (value.trim() !== '') {
+                            entry.rawData[key] = value.trim();
+                        }
+                    }
+                    
+                    journalData.push(entry);
+                }
+            }
+            
+            updateStats();
+            initCalendar();
+            
+            if (journalData.length > 0) {
+                const normalizedCurrentDate = normalizeDate(currentDate);
+                showEntryForDate(normalizedCurrentDate);
+            }
+        }
+        
+        // Afficher l'option de téléchargement manuel
+        function showManualUploadOption() {
+            const journalDisplay = document.getElementById('journal-display');
+            journalDisplay.innerHTML = `
+                <div class="error-message">
+                    <i class="fas fa-exclamation-triangle"></i> 
+                    <strong>Problème de chargement des données</strong><br>
+                    Impossible de charger les données depuis Google Sheets en raison des restrictions CORS.<br><br>
+                    <strong>Solutions :</strong><br>
+                    1. <a href="${sheetUrl}" target="_blank">Télécharger le fichier CSV manuellement</a>, puis :<br>
+                    - Ouvrez le fichier CSV dans un éditeur de texte<br>
+                    - Copiez tout le contenu<br>
+                    - Collez-le ci-dessous et cliquez sur "Charger"<br><br>
+                    <textarea id="csv-textarea" rows="10" style="width: 100%; padding: 10px; margin: 10px 0;" placeholder="Collez ici le contenu du fichier CSV..."></textarea>
+                    <button id="load-csv-btn" style="background-color: #8a6d3b; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+                        <i class="fas fa-upload"></i> Charger les données CSV
+                    </button>
+                </div>
+            `;
+            
+            document.getElementById('load-csv-btn').addEventListener('click', function() {
+                const csvText = document.getElementById('csv-textarea').value;
+                if (csvText.trim()) {
+                    try {
+                        processCSVData(csvText);
+                        showSuccessMessage("Données chargées avec succès !");
+                    } catch (error) {
+                        showErrorMessage(error);
+                    }
+                }
+            });
+        }
+        
+        // Afficher un message de succès
+        function showSuccessMessage(message) {
+            const journalDisplay = document.getElementById('journal-display');
+            const originalContent = journalDisplay.innerHTML;
+            
+            journalDisplay.innerHTML = `
+                <div class="journal-entry">
+                    <div class="entry-header">
+                        <div class="entry-date">Succès</div>
+                    </div>
+                    <div class="entry-content">
+                        <div style="background-color: #d4edda; color: #155724; padding: 15px; border-radius: 5px; border: 1px solid #c3e6cb;">
+                            <i class="fas fa-check-circle"></i> ${message}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            setTimeout(() => {
+                const normalizedCurrentDate = normalizeDate(currentDate);
+                showEntryForDate(normalizedCurrentDate);
+            }, 2000);
+        }
+        
+        // Parseur CSV
+        function parseCSV(csvText) {
+            const lines = [];
+            let currentLine = [];
+            let currentValue = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < csvText.length; i++) {
+                const char = csvText[i];
+                const nextChar = i + 1 < csvText.length ? csvText[i + 1] : '';
+                
+                if (char === '"') {
+                    if (inQuotes && nextChar === '"') {
+                        currentValue += '"';
+                        i++;
+                    } else {
+                        inQuotes = !inQuotes;
+                    }
+                } else if (char === ',' && !inQuotes) {
+                    currentLine.push(currentValue);
+                    currentValue = '';
+                } else if (char === '\n' && !inQuotes) {
+                    currentLine.push(currentValue);
+                    lines.push(currentLine);
+                    currentLine = [];
+                    currentValue = '';
+                } else if (char === '\r' && nextChar === '\n' && !inQuotes) {
+                    currentLine.push(currentValue);
+                    lines.push(currentLine);
+                    currentLine = [];
+                    currentValue = '';
+                    i++;
+                } else {
+                    currentValue += char;
+                }
+            }
+            
+            if (currentValue !== '' || currentLine.length > 0) {
+                currentLine.push(currentValue);
+                lines.push(currentLine);
+            }
+            
+            const headers = lines.length > 0 ? lines[0].map(h => h.trim()) : [];
+            const rows = lines.length > 1 ? lines.slice(1) : [];
+            
+            return { headers: headers, rows: rows };
+        }
+        
+        // Parser de date
+        function parseDate(dateStr) {
+            if (!dateStr || dateStr.trim() === '') {
+                return null;
+            }
+            
+            const cleanDateStr = dateStr.trim().replace(/"/g, '');
+            
+            let date = null;
+            
+            let match = cleanDateStr.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/);
+            if (match) {
+                const day = parseInt(match[1], 10);
+                const month = parseInt(match[2], 10) - 1;
+                const year = parseInt(match[3], 10);
+                date = new Date(year, month, day);
+            }
+            
+            if (!date) {
+                match = cleanDateStr.match(/^(\d{4})[/-](\d{1,2})[/-](\d{1,2})$/);
+                if (match) {
+                    const year = parseInt(match[1], 10);
+                    const month = parseInt(match[2], 10) - 1;
+                    const day = parseInt(match[3], 10);
+                    date = new Date(year, month, day);
+                }
+            }
+            
+            if (!date) {
+                match = cleanDateStr.match(/^(\d{1,2})\s+(\w+)\s+(\d{4})$/);
+                if (match) {
+                    const day = parseInt(match[1], 10);
+                    const monthNames = {
+                        'janvier': 0, 'février': 1, 'fevrier': 1, 'mars': 2, 'avril': 3,
+                        'mai': 4, 'juin': 5, 'juillet': 6, 'août': 7, 'aout': 7,
+                        'septembre': 8, 'octobre': 9, 'novembre': 10, 'décembre': 11, 'decembre': 11
+                    };
+                    const monthName = match[2].toLowerCase();
+                    const month = monthNames[monthName];
+                    const year = parseInt(match[3], 10);
+                    
+                    if (month !== undefined) {
+                        date = new Date(year, month, day);
+                    }
+                }
+            }
+            
+            if (!date) {
+                date = new Date(cleanDateStr);
+                if (isNaN(date.getTime())) {
+                    date = null;
+                }
+            }
+            
+            return date;
+        }
+        
+        // Afficher une entrée de journal
+        function showEntryForDate(date) {
+            const normalizedDate = normalizeDate(date);
+            const entry = journalData.find(e => datesAreEqual(e.date, normalizedDate));
+            
+            const journalDisplay = document.getElementById('journal-display');
+            
+            if (entry && entry.rawData) {
+                console.log("Données disponibles pour cette date:", entry.rawData);
+                
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                const formattedDate = entry.date.toLocaleDateString('fr-FR', options);
+                
+                let entryHTML = '<div class="journal-entry">';
+                entryHTML += `<div class="entry-header">`;
+                entryHTML += `<div class="entry-date">${formattedDate}</div>`;
+                entryHTML += `</div>`;
+                entryHTML += '<div class="entry-content">';
+                
+                // SECTION: SOMMEIL
+                entryHTML += `<div class="section-sommeil">`;
+                entryHTML += `<div class="section-title"><i class="fas fa-moon"></i> SOMMEIL</div>`;
+                entryHTML += `<div class="section-decoration decoration-sommeil"><i class="fas fa-moon"></i></div>`;
+                
+                entryHTML += `<div class="compact-row-sommeil">`;
+                
+                // Heure de réveil
+                const reveilKey = normalizeKey("Heure de réveil");
+                if (entry.rawData[reveilKey]) {
+                    entryHTML += `<div class="compact-item-sommeil">
+                        <div class="compact-label-sommeil"><i class="fas fa-sun"></i> Réveil</div>
+                        <div class="compact-value-sommeil time-value">${entry.rawData[reveilKey]}</div>
+                    </div>`;
+                } else {
+                    entryHTML += `<div class="compact-item-sommeil">
+                        <div class="compact-label-sommeil"><i class="fas fa-sun"></i> Réveil</div>
+                        <div class="compact-value-sommeil"></div>
+                    </div>`;
+                }
+                
+                // Heure de coucher
+                const coucherKey = normalizeKey("Heure de coucher");
+                if (entry.rawData[coucherKey]) {
+                    entryHTML += `<div class="compact-item-sommeil">
+                        <div class="compact-label-sommeil"><i class="fas fa-moon"></i> Coucher</div>
+                        <div class="compact-value-sommeil time-value">${entry.rawData[coucherKey]}</div>
+                    </div>`;
+                } else {
+                    entryHTML += `<div class="compact-item-sommeil">
+                        <div class="compact-label-sommeil"><i class="fas fa-moon"></i> Coucher</div>
+                        <div class="compact-value-sommeil"></div>
+                    </div>`;
+                }
+                
+                // Qualité de sommeil
+                const qualiteSommeilKey = normalizeKey("Qualité de sommeil la veille");
+                if (entry.rawData[qualiteSommeilKey]) {
+                    const sleepStars = createStars(entry.rawData[qualiteSommeilKey]);
+                    entryHTML += `<div class="compact-item-sommeil">
+                        <div class="compact-label-sommeil"><i class="fas fa-bed"></i> Qualité</div>
+                        <div class="compact-value-sommeil">${sleepStars || entry.rawData[qualiteSommeilKey]}</div>
+                    </div>`;
+                } else {
+                    entryHTML += `<div class="compact-item-sommeil">
+                        <div class="compact-label-sommeil"><i class="fas fa-bed"></i> Qualité</div>
+                        <div class="compact-value-sommeil"></div>
+                    </div>`;
+                }
+                
+                entryHTML += `</div>`;
+                
+                // Nuit la veille
+                const nuitKey = normalizeKey("Nuit la veille");
+                if (entry.rawData[nuitKey]) {
+                    entryHTML += `<div class="entry-row">
+                        <div class="entry-label"><i class="fas fa-star"></i> Nuit la veille</div>
+                        <div class="entry-value">${entry.rawData[nuitKey]}</div>
+                    </div>`;
+                }
+                
+                // Rêve la veille
+                const reveKey = normalizeKey("Rêve la veille");
+                if (entry.rawData[reveKey]) {
+                    entryHTML += `<div class="entry-row">
+                        <div class="entry-label"><i class="fas fa-cloud-moon"></i> Rêve la veille</div>
+                        <div class="entry-value">${entry.rawData[reveKey]}</div>
+                    </div>`;
+                }
+                
+                entryHTML += `</div>`;
+                
+                // SECTION: AU MATIN
+                entryHTML += `<div class="section-matin">`;
+                entryHTML += `<div class="section-title"><i class="fas fa-sun"></i> AU MATIN</div>`;
+                entryHTML += `<div class="section-decoration decoration-matin"><i class="fas fa-sun"></i></div>`;
+                
+                if (entry.groupedData.au_reveil && entry.groupedData.au_reveil.length > 0) {                    
+                    entryHTML += `<div class="entry-row">
+                        <div class="entry-label"><i class="fas fa-list-ol"></i> Au réveil</div>
+                        <div class="entry-value">`;
+                    
+                    const auReveilItems = entry.groupedData.au_reveil
+                        .filter(item => item.value && item.value.trim() !== '')
+                        .sort((a, b) => {
+                            const numA = parseInt(a.header.match(/\[(\d+)\]/)?.[1] || 0);
+                            const numB = parseInt(b.header.match(/\[(\d+)\]/)?.[1] || 0);
+                            return numA - numB;
+                        });
+                    
+                    auReveilItems.forEach((item, index) => {
+                        entryHTML += `<div class="aureveil-item">${index + 1}- ${item.value}</div>`;
+                    });
+                    
+                    entryHTML += `</div></div>`;
+                }
+                
+                // Déroulement au lit
+                const deroulementLitKey = normalizeKey("Déroulement au lit");
+                if (entry.rawData[deroulementLitKey]) {
+                    entryHTML += `<div class="entry-row">
+                        <div class="entry-label"><i class="fas fa-bed"></i> Déroulement au lit</div>
+                        <div class="entry-value">${entry.rawData[deroulementLitKey]}</div>
+                    </div>`;
+                }
+                
+                // Durée totale activité au lit et Heure de lever sur même ligne
+                const dureeLitKey = normalizeKey("Durée totale activité au lit");
+                const heureLeverKey = normalizeKey("Heure de lever");
+                
+                if (entry.rawData[dureeLitKey] || entry.rawData[heureLeverKey]) {
+                    entryHTML += `<div class="double-row">`;
+                    
+                    if (entry.rawData[dureeLitKey]) {
+                        entryHTML += `<div class="double-item">
+                            <div class="compact-label"><i class="fas fa-clock"></i> Durée au lit</div>
+                            <div class="compact-value time-value">${entry.rawData[dureeLitKey]}</div>
+                        </div>`;
+                    } else {
+                        entryHTML += `<div class="double-item">
+                            <div class="compact-label"><i class="fas fa-clock"></i> Durée au lit</div>
+                            <div class="compact-value"></div>
+                        </div>`;
+                    }
+                    
+                    if (entry.rawData[heureLeverKey]) {
+                        entryHTML += `<div class="double-item">
+                            <div class="compact-label"><i class="fas fa-user-clock"></i> Heure lever</div>
+                            <div class="compact-value time-value">${entry.rawData[heureLeverKey]}</div>
+                        </div>`;
+                    } else {
+                        entryHTML += `<div class="double-item">
+                            <div class="compact-label"><i class="fas fa-user-clock"></i> Heure lever</div>
+                            <div class="compact-value"></div>
+                        </div>`;
+                    }
+                    
+                    entryHTML += `</div>`;
+                }
+                
+                // Mis au point (remplace Préparation)
+                const misAuPointKey = normalizeKey("Mis au point");
+                if (entry.rawData[misAuPointKey]) {
+                    entryHTML += `<div class="entry-row">
+                        <div class="entry-label"><i class="fas fa-tasks"></i> Mis au point</div>
+                        <div class="entry-value">${entry.rawData[misAuPointKey]}</div>
+                    </div>`;
+                }
+                
+                // Objectif du jour
+                const objectifKey = normalizeKey("Objectif du jour");
+                if (entry.rawData[objectifKey]) {
+                    entryHTML += `<div class="entry-row">
+                        <div class="entry-label"><i class="fas fa-bullseye"></i> Objectif du jour</div>
+                        <div class="entry-value">${entry.rawData[objectifKey]}</div>
+                    </div>`;
+                }
+                
+                entryHTML += `</div>`;
+                
+                // SECTION: SPIRITUEL
+                const hasSpiritualData = (entry.groupedData.activite_spirituel && entry.groupedData.activite_spirituel.length > 0) ||
+                    entry.rawData[normalizeKey("Texte medité")] ||
+                    entry.rawData[normalizeKey("Ce que j'ai retenu aujourd'hui dans la méditation")] ||
+                    entry.groupedData.sujet_priere;
+                
+                if (hasSpiritualData) {
+                    entryHTML += `<div class="section-spirituel">`;
+                    entryHTML += `<div class="section-title"><i class="fas fa-pray"></i> SPIRITUEL</div>`;
+                    entryHTML += `<div class="section-decoration decoration-spirituel"><i class="fas fa-pray"></i></div>`;
+                    
+                    // Activités spirituelles avec nouveaux champs
+                    if (entry.groupedData.activite_spirituel && entry.groupedData.activite_spirituel.length > 0) {
+                        entryHTML += `<div class="entry-row">
+                            <div class="entry-label"><i class="fas fa-spa"></i> Activités spirituelles</div>
+                            <div class="entry-value">`;
+                        
+                        entry.groupedData.activite_spirituel.forEach((item, index) => {
+                            if (item.value && item.value.trim() !== '') {
+                                const match = item.header.match(/\[([^\]]+)\]/);
+                                const activityName = match ? match[1] : `Activité ${index + 1}`;
+                                const emoji = getSpiritualEmoji(activityName);
+                                
+                                const timeHtml = extractSpiritualTime(item.value);
+                                
+                                entryHTML += `<div class="spiritual-item">
+                                    <span>${emoji} ${activityName}</span>
+                                    ${timeHtml}
+                                </div>`;
+                            }
+                        });
+                        
+                        entryHTML += `</div></div>`;
+                    }
+                    
+                    // Sujets de prière
+                    if (entry.groupedData.sujet_priere && entry.groupedData.sujet_priere.length > 0) {
+                        entryHTML += `<div class="entry-row">
+                            <div class="entry-label"><i class="fas fa-hands-praying"></i> Sujets de prière</div>
+                            <div class="entry-value">`;
+                        
+                        const sujets = entry.groupedData.sujet_priere
+                            .filter(item => item.value && item.value.trim() !== '')
+                            .sort((a, b) => {
+                                const numA = parseInt(a.header.match(/\d+/)?.[0] || 0);
+                                const numB = parseInt(b.header.match(/\d+/)?.[0] || 0);
+                                return numA - numB;
+                            });
+                        
+                        sujets.forEach((item, index) => {
+                            const sujetNum = item.header.match(/\d+/)?.[0] || (index + 1);
+                            let statusIcon = '';
+                            
+                            const statusKey = normalizeKey(`Prière OK [Sujet ${sujetNum}]`);
+                            if (entry.rawData[statusKey]) {
+                                const status = entry.rawData[statusKey].toLowerCase();
+                                if (status === 'oui') {
+                                    statusIcon = '<span class="prayer-status prayer-ok">✓</span>';
+                                } else if (status === 'non') {
+                                    statusIcon = '<span class="prayer-status prayer-no">✗</span>';
+                                } else {
+                                    statusIcon = '<span class="prayer-status prayer-inprogress">…</span>';
+                                }
+                            }
+                            
+                            entryHTML += `${index + 1}- ${formatValue(item.value)} ${statusIcon}<br>`;
+                        });
+                        
+                        entryHTML += `</div></div>`;
+                    }
+                    
+                    // Champs spirituels individuels avec les nouveaux champs
+                    const spiritualFields = [
+                        {key: "Texte medité", label: "Texte médité", icon: "fa-book-bible"},
+                        {key: "Ce que j'ai retenu aujourd'hui dans la méditation", label: "Retenu de la méditation", icon: "fa-brain"},
+                        {key: "Résolution du jour/décision", label: "Résolution du jour", icon: "fa-flag"},
+                        {key: "Fampianarana biblique du jour", label: "Fampianarana biblique", icon: "fa-church"},
+                        {key: "Leçon spirituelle tirée du jour", label: "Leçon spirituelle", icon: "fa-graduation-cap"},
+                        {key: "Partage spirituel", label: "Partage spirituel", icon: "fa-comments"},
+                        {key: "Sujet de Louange,reconnaissance", label: "Sujet de louange", icon: "fa-hands"}
+                    ];
+                    
+                    spiritualFields.forEach(field => {
+                        const fieldKey = normalizeKey(field.key);
+                        if (entry.rawData[fieldKey]) {
+                            entryHTML += `<div class="entry-row">
+                                <div class="entry-label"><i class="fas ${field.icon}"></i> ${field.label}</div>
+                                <div class="entry-value">${formatValue(entry.rawData[fieldKey])}</div>
+                            </div>`;
+                        }
+                    });
+                    
+                    entryHTML += `</div>`;
+                }
+                
+                // SECTION: ALIMENTATION
+                const hasFoodData = entry.rawData[normalizeKey("Petit déjeuner")] ||
+                    entry.rawData[normalizeKey("Déjeuner")] ||
+                    entry.rawData[normalizeKey("Dîner")] ||
+                    entry.rawData[normalizeKey("Dernier repas de la veille")];
+                
+                if (hasFoodData) {
+                    entryHTML += `<div class="section-alimentation">`;
+                    entryHTML += `<div class="section-title"><i class="fas fa-utensils"></i> ALIMENTATION</div>`;
+                    entryHTML += `<div class="section-decoration decoration-alimentation"><i class="fas fa-utensils"></i></div>`;
+                    
+                    // Dernier repas et jeûne sur même ligne
+                    const dernierRepasKey = normalizeKey("Dernier repas de la veille");
+                    const dureeJeuneKey = normalizeKey("Durée du jeûne");
+                    
+                    if (entry.rawData[dernierRepasKey] || entry.rawData[dureeJeuneKey]) {
+                        entryHTML += `<div class="double-row">`;
+                        
+                        if (entry.rawData[dernierRepasKey]) {
+                            entryHTML += `<div class="double-item">
+                                <div class="compact-label"><i class="fas fa-utensils"></i> Dernier repas veille</div>
+                                <div class="compact-value">${entry.rawData[dernierRepasKey]}</div>
+                            </div>`;
+                        } else {
+                            entryHTML += `<div class="double-item">
+                                <div class="compact-label"><i class="fas fa-utensils"></i> Dernier repas veille</div>
+                                <div class="compact-value"></div>
+                            </div>`;
+                        }
+                        
+                        if (entry.rawData[dureeJeuneKey]) {
+                            entryHTML += `<div class="double-item">
+                                <div class="compact-label"><i class="fas fa-clock"></i> Durée jeûne</div>
+                                <div class="compact-value time-value">${entry.rawData[dureeJeuneKey]}</div>
+                            </div>`;
+                        } else {
+                            entryHTML += `<div class="double-item">
+                                <div class="compact-label"><i class="fas fa-clock"></i> Durée jeûne</div>
+                                <div class="compact-value"></div>
+                            </div>`;
+                        }
+                        
+                        entryHTML += `</div>`;
+                    }
+                    
+                    // Petit déjeuner
+                    const heurePetitDejKey = normalizeKey("Heure Petit déjeuner");
+                    const lieuPetitDejKey = normalizeKey("Lieu Petit déjeuner");
+                    const petitDejKey = normalizeKey("Petit déjeuner");
+                    
+                    if (entry.rawData[heurePetitDejKey] || entry.rawData[petitDejKey] || entry.rawData[lieuPetitDejKey]) {
+                        entryHTML += `<div class="meal-container">`;
+                        entryHTML += `<div class="meal-title"><i class="fas fa-coffee"></i> Petit déjeuner</div>`;
+                        
+                        entryHTML += `<div class="meal-time-location">`;
+                        
+                        if (entry.rawData[heurePetitDejKey]) {
+                            entryHTML += `<div class="meal-time-card">
+                                <div class="compact-label"><i class="fas fa-clock"></i> Heure</div>
+                                <div class="compact-value time-value">${entry.rawData[heurePetitDejKey]}</div>
+                            </div>`;
+                        } else {
+                            entryHTML += `<div class="meal-time-card">
+                                <div class="compact-label"><i class="fas fa-clock"></i> Heure</div>
+                                <div class="compact-value"></div>
+                            </div>`;
+                        }
+                        
+                        if (entry.rawData[lieuPetitDejKey]) {
+                            entryHTML += `<div class="meal-location-card">
+                                <div class="compact-label"><i class="fas fa-map-marker-alt"></i> Lieu</div>
+                                <div class="compact-value">${entry.rawData[lieuPetitDejKey]}</div>
+                            </div>`;
+                        } else {
+                            entryHTML += `<div class="meal-location-card">
+                                <div class="compact-label"><i class="fas fa-map-marker-alt"></i> Lieu</div>
+                                <div class="compact-value"></div>
+                            </div>`;
+                        }
+                        
+                        entryHTML += `</div>`;
+                        
+                        if (entry.rawData[petitDejKey]) {
+                            entryHTML += `<div class="meal-content">
+                                <div class="meal-content-label"><i class="fas fa-utensils"></i> Repas</div>
+                                <div class="meal-content-value">${formatValue(entry.rawData[petitDejKey])}</div>
+                            </div>`;
+                        }
+                        
+                        entryHTML += `</div>`;
+                    }
+                    
+                    // Déjeuner
+                    const heureDejKey = normalizeKey("Heure Déjeuner");
+                    const lieuDejKey = normalizeKey("Lieu déjeuner");
+                    const dejKey = normalizeKey("Déjeuner");
+                    
+                    if (entry.rawData[heureDejKey] || entry.rawData[dejKey] || entry.rawData[lieuDejKey]) {
+                        entryHTML += `<div class="meal-container">`;
+                        entryHTML += `<div class="meal-title"><i class="fas fa-utensil-spoon"></i> Déjeuner</div>`;
+                        
+                        entryHTML += `<div class="meal-time-location">`;
+                        
+                        if (entry.rawData[heureDejKey]) {
+                            entryHTML += `<div class="meal-time-card">
+                                <div class="compact-label"><i class="fas fa-clock"></i> Heure</div>
+                                <div class="compact-value time-value">${entry.rawData[heureDejKey]}</div>
+                            </div>`;
+                        } else {
+                            entryHTML += `<div class="meal-time-card">
+                                <div class="compact-label"><i class="fas fa-clock"></i> Heure</div>
+                                <div class="compact-value"></div>
+                            </div>`;
+                        }
+                        
+                        if (entry.rawData[lieuDejKey]) {
+                            entryHTML += `<div class="meal-location-card">
+                                <div class="compact-label"><i class="fas fa-map-marker-alt"></i> Lieu</div>
+                                <div class="compact-value">${entry.rawData[lieuDejKey]}</div>
+                            </div>`;
+                        } else {
+                            entryHTML += `<div class="meal-location-card">
+                                <div class="compact-label"><i class="fas fa-map-marker-alt"></i> Lieu</div>
+                                <div class="compact-value"></div>
+                            </div>`;
+                        }
+                        
+                        entryHTML += `</div>`;
+                        
+                        if (entry.rawData[dejKey]) {
+                            entryHTML += `<div class="meal-content">
+                                <div class="meal-content-label"><i class="fas fa-utensils"></i> Repas</div>
+                                <div class="meal-content-value">${formatValue(entry.rawData[dejKey])}</div>
+                            </div>`;
+                        }
+                        
+                        entryHTML += `</div>`;
+                    }
+                    
+                    // Dîner
+                    const heureDinerKey = normalizeKey("Heure Dîner");
+                    const lieuDinerKey = normalizeKey("Lieu Dîner");
+                    const dinerKey = normalizeKey("Dîner");
+                    
+                    if (entry.rawData[heureDinerKey] || entry.rawData[dinerKey] || entry.rawData[lieuDinerKey]) {
+                        entryHTML += `<div class="meal-container">`;
+                        entryHTML += `<div class="meal-title"><i class="fas fa-dinner"></i> Dîner</div>`;
+                        
+                        entryHTML += `<div class="meal-time-location">`;
+                        
+                        if (entry.rawData[heureDinerKey]) {
+                            entryHTML += `<div class="meal-time-card">
+                                <div class="compact-label"><i class="fas fa-clock"></i> Heure</div>
+                                <div class="compact-value time-value">${entry.rawData[heureDinerKey]}</div>
+                            </div>`;
+                        } else {
+                            entryHTML += `<div class="meal-time-card">
+                                <div class="compact-label"><i class="fas fa-clock"></i> Heure</div>
+                                <div class="compact-value"></div>
+                            </div>`;
+                        }
+                        
+                        if (entry.rawData[lieuDinerKey]) {
+                            entryHTML += `<div class="meal-location-card">
+                                <div class="compact-label"><i class="fas fa-map-marker-alt"></i> Lieu</div>
+                                <div class="compact-value">${entry.rawData[lieuDinerKey]}</div>
+                            </div>`;
+                        } else {
+                            entryHTML += `<div class="meal-location-card">
+                                <div class="compact-label"><i class="fas fa-map-marker-alt"></i> Lieu</div>
+                                <div class="compact-value"></div>
+                            </div>`;
+                        }
+                        
+                        entryHTML += `</div>`;
+                        
+                        if (entry.rawData[dinerKey]) {
+                            entryHTML += `<div class="meal-content">
+                                <div class="meal-content-label"><i class="fas fa-utensils"></i> Repas</div>
+                                <div class="meal-content-value">${formatValue(entry.rawData[dinerKey])}</div>
+                            </div>`;
+                        }
+                        
+                        entryHTML += `</div>`;
+                    }
+                    
+                    // Autres boissons et quantité sur même ligne
+                    const autresBoissonKey = normalizeKey("Autres boisson");
+                    const qteAutresBoissonKey = normalizeKey("Qté autres boisson");
+                    
+                    if (entry.rawData[autresBoissonKey] || entry.rawData[qteAutresBoissonKey]) {
+                        entryHTML += `<div class="double-row">`;
+                        
+                        if (entry.rawData[autresBoissonKey]) {
+                            entryHTML += `<div class="double-item">
+                                <div class="compact-label"><i class="fas fa-glass"></i> Autres boissons</div>
+                                <div class="compact-value">${formatValue(entry.rawData[autresBoissonKey])}</div>
+                            </div>`;
+                        } else {
+                            entryHTML += `<div class="double-item">
+                                <div class="compact-label"><i class="fas fa-glass"></i> Autres boissons</div>
+                                <div class="compact-value"></div>
+                            </div>`;
+                        }
+                        
+                        if (entry.rawData[qteAutresBoissonKey]) {
+                            entryHTML += `<div class="double-item">
+                                <div class="compact-label"><i class="fas fa-wine-bottle"></i> Quantité</div>
+                                <div class="compact-value">${entry.rawData[qteAutresBoissonKey]}</div>
+                            </div>`;
+                        } else {
+                            entryHTML += `<div class="double-item">
+                                <div class="compact-label"><i class="fas fa-wine-bottle"></i> Quantité</div>
+                                <div class="compact-value"></div>
+                            </div>`;
+                        }
+                        
+                        entryHTML += `</div>`;
+                    }
+                    
+                    // Eau bue avec calcul
+                    const eauBueKey = normalizeKey("Eau bue dans la journee");
+                    if (entry.rawData[eauBueKey]) {
+                        const waterData = calculateWaterTotal(entry.rawData[eauBueKey]);
+                        
+                        entryHTML += `<div class="entry-row">
+                            <div class="entry-label"><i class="fas fa-tint"></i> Eau bue</div>
+                            <div class="entry-value">${formatValue(entry.rawData[eauBueKey])}`;
+                        
+                        if (waterData) {
+                            entryHTML += `<div class="water-calculation">${waterData.display}</div>`;
+                        }
+                        
+                        entryHTML += `</div></div>`;
+                    }
+                    
+                    // Autres champs alimentation
+                    const foodFields = [
+                        {key: "Collation", label: "Collation", icon: "fa-apple-alt"},
+                        {key: "Repas extra", label: "Repas extra", icon: "fa-plus-circle"},
+                        {key: "Details Repas extra", label: "Détails repas extra", icon: "fa-info-circle"},
+                        {key: "Menu", label: "Menu", icon: "fa-clipboard-list"},
+                        {key: "Recette à retenir", label: "Recette à retenir", icon: "fa-bookmark"},
+                        {key: "Durée cuisine", label: "Durée cuisine", icon: "fa-clock"}
+                    ];
+                    
+                    foodFields.forEach(field => {
+                        const fieldKey = normalizeKey(field.key);
+                        if (entry.rawData[fieldKey]) {
+                            entryHTML += `<div class="entry-row">
+                                <div class="entry-label"><i class="fas ${field.icon}"></i> ${field.label}</div>
+                                <div class="entry-value">${formatValue(entry.rawData[fieldKey])}</div>
+                            </div>`;
+                        }
+                    });
+                    
+                    entryHTML += `</div>`;
+                }
+                
+                // SECTION: TRAVAIL
+                const typeKey = normalizeKey("Type");
+                const contenuKey = normalizeKey("Contenu");
+                
+                if (entry.rawData[typeKey] || entry.rawData[contenuKey]) {
+                    entryHTML += `<div class="section-travail">`;
+                    entryHTML += `<div class="section-title"><i class="fas fa-briefcase"></i> TRAVAIL</div>`;
+                    entryHTML += `<div class="section-decoration decoration-travail"><i class="fas fa-briefcase"></i></div>`;
+                    
+                    if (entry.rawData[typeKey]) {
+                        entryHTML += `<div class="travail-header">
+                            <div class="travail-type">${entry.rawData[typeKey]}</div>
+                        </div>`;
+                    }
+                    
+                    // Heure et durée travail sur même ligne
+                    const heureTravailKey = normalizeKey("Heure Travail");
+                    const dureeTravailKey = normalizeKey("Durée Travail");
+                    
+                    if (entry.rawData[heureTravailKey] || entry.rawData[dureeTravailKey]) {
+                        entryHTML += `<div class="travail-time-container">`;
+                        
+                        if (entry.rawData[heureTravailKey]) {
+                            entryHTML += `<div class="travail-time-card">
+                                <div class="compact-label"><i class="fas fa-clock"></i> Heure</div>
+                                <div class="compact-value time-value">${entry.rawData[heureTravailKey]}</div>
+                            </div>`;
+                        } else {
+                            entryHTML += `<div class="travail-time-card">
+                                <div class="compact-label"><i class="fas fa-clock"></i> Heure</div>
+                                <div class="compact-value"></div>
+                            </div>`;
+                        }
+                        
+                        if (entry.rawData[dureeTravailKey]) {
+                            entryHTML += `<div class="travail-time-card">
+                                <div class="compact-label"><i class="fas fa-hourglass"></i> Durée</div>
+                                <div class="compact-value time-value">${entry.rawData[dureeTravailKey]}</div>
+                            </div>`;
+                        } else {
+                            entryHTML += `<div class="travail-time-card">
+                                <div class="compact-label"><i class="fas fa-hourglass"></i> Durée</div>
+                                <div class="compact-value"></div>
+                            </div>`;
+                        }
+                        
+                        entryHTML += `</div>`;
+                    }
+                    
+                    // Contenu et à faire periodique sur même ligne
+                    const aFaireKey = normalizeKey("A faire periodique");
+                    
+                    if (entry.rawData[contenuKey] || entry.rawData[aFaireKey]) {
+                        entryHTML += `<div class="travail-content-row">`;
+                        
+                        if (entry.rawData[contenuKey]) {
+                            entryHTML += `<div class="travail-content-item">
+                                <div class="compact-label"><i class="fas fa-file-alt"></i> Contenu</div>
+                                <div class="compact-value">${formatValue(entry.rawData[contenuKey])}</div>
+                            </div>`;
+                        } else {
+                            entryHTML += `<div class="travail-content-item">
+                                <div class="compact-label"><i class="fas fa-file-alt"></i> Contenu</div>
+                                <div class="compact-value"></div>
+                            </div>`;
+                        }
+                        
+                        if (entry.rawData[aFaireKey]) {
+                            entryHTML += `<div class="travail-content-item">
+                                <div class="compact-label"><i class="fas fa-tasks"></i> À faire périodique</div>
+                                <div class="compact-value">${formatValue(entry.rawData[aFaireKey])}</div>
+                            </div>`;
+                        } else {
+                            entryHTML += `<div class="travail-content-item">
+                                <div class="compact-label"><i class="fas fa-tasks"></i> À faire périodique</div>
+                                <div class="compact-value"></div>
+                            </div>`;
+                        }
+                        
+                        entryHTML += `</div>`;
+                    }
+                    
+                    // Details Travail
+                    const detailsTravailKey = normalizeKey("Details Travail");
+                    if (entry.rawData[detailsTravailKey]) {
+                        entryHTML += `<div class="entry-row">
+                            <div class="entry-label"><i class="fas fa-info-circle"></i> Détails travail</div>
+                            <div class="entry-value">${formatValue(entry.rawData[detailsTravailKey])}</div>
+                        </div>`;
+                    }
+                    
+                    // Details extra-Travail
+                    const detailsExtraTravailKey = normalizeKey("Details extra-Travail");
+                    if (entry.rawData[detailsExtraTravailKey]) {
+                        entryHTML += `<div class="entry-row">
+                            <div class="entry-label"><i class="fas fa-plus-circle"></i> Détails extra-travail</div>
+                            <div class="entry-value">${formatValue(entry.rawData[detailsExtraTravailKey])}</div>
+                        </div>`;
+                    }
+                    
+                    entryHTML += `</div>`;
+                }
+                
+                // SECTION: ACTIVITE LECTURE
+                const typeLectureKey = normalizeKey("type de lecture");
+                const titreKey = normalizeKey("Titre");
+                
+                if (entry.rawData[typeLectureKey] || entry.rawData[titreKey]) {
+                    entryHTML += `<div class="section-lecture">`;
+                    entryHTML += `<div class="section-title"><i class="fas fa-book-reader"></i> ACTIVITE LECTURE</div>`;
+                    entryHTML += `<div class="section-decoration decoration-lecture"><i class="fas fa-book-reader"></i></div>`;
+                    
+                    if (entry.rawData[typeLectureKey]) {
+                        entryHTML += `<div class="entry-row">
+                            <div class="entry-label"><i class="fas fa-book"></i> Type de lecture</div>
+                            <div class="entry-value">${entry.rawData[typeLectureKey]}</div>
+                        </div>`;
+                    }
+                    
+                    if (entry.rawData[titreKey]) {
+                        entryHTML += `<div class="entry-row">
+                            <div class="entry-label"><i class="fas fa-heading"></i> Titre</div>
+                            <div class="entry-value">${entry.rawData[titreKey]}</div>
+                        </div>`;
+                    }
+                    
+                    // Détails lecture
+                    const detailsLectureKey = normalizeKey("Détails lecture");
+                    if (entry.rawData[detailsLectureKey]) {
+                        entryHTML += `<div class="entry-row">
+                            <div class="entry-label"><i class="fas fa-info-circle"></i> Détails lecture</div>
+                            <div class="entry-value">${formatValue(entry.rawData[detailsLectureKey])}</div>
+                        </div>`;
+                    }
+                    
+                    // Leçons reçues lecture
+                    const leconsLectureKey = normalizeKey("Leçons reçues lecture");
+                    if (entry.rawData[leconsLectureKey]) {
+                        entryHTML += `<div class="entry-row">
+                            <div class="entry-label"><i class="fas fa-graduation-cap"></i> Leçons reçues</div>
+                            <div class="entry-value">${formatValue(entry.rawData[leconsLectureKey])}</div>
+                        </div>`;
+                    }
+                    
+                    // Durée lecture livre et Heure lecture livre sur même ligne
+                    const dureeLectureKey = normalizeKey("Durée lecture livre");
+                    const heureLectureKey = normalizeKey("Heure lecture livre");
+                    
+                    if (entry.rawData[dureeLectureKey] || entry.rawData[heureLectureKey]) {
+                        entryHTML += `<div class="double-row">`;
+                        
+                        if (entry.rawData[dureeLectureKey]) {
+                            entryHTML += `<div class="double-item">
+                                <div class="compact-label"><i class="fas fa-clock"></i> Durée lecture</div>
+                                <div class="compact-value time-value">${entry.rawData[dureeLectureKey]}</div>
+                            </div>`;
+                        } else {
+                            entryHTML += `<div class="double-item">
+                                <div class="compact-label"><i class="fas fa-clock"></i> Durée lecture</div>
+                                <div class="compact-value"></div>
+                            </div>`;
+                        }
+                        
+                        if (entry.rawData[heureLectureKey]) {
+                            entryHTML += `<div class="double-item">
+                                <div class="compact-label"><i class="fas fa-user-clock"></i> Heure lecture</div>
+                                <div class="compact-value time-value">${entry.rawData[heureLectureKey]}</div>
+                            </div>`;
+                        } else {
+                            entryHTML += `<div class="double-item">
+                                <div class="compact-label"><i class="fas fa-user-clock"></i> Heure lecture</div>
+                                <div class="compact-value"></div>
+                            </div>`;
+                        }
+                        
+                        entryHTML += `</div>`;
+                    }
+                    
+                    // Obs sur lecture
+                    const obsLectureKey = normalizeKey("Obs sur lecture");
+                    if (entry.rawData[obsLectureKey]) {
+                        entryHTML += `<div class="entry-row">
+                            <div class="entry-label"><i class="fas fa-sticky-note"></i> Observations</div>
+                            <div class="entry-value">${formatValue(entry.rawData[obsLectureKey])}</div>
+                        </div>`;
+                    }
+                    
+                    entryHTML += `</div>`;
+                }
+                
+                // SECTION: AUTRES ACTIVITES
+                const occupationKey = normalizeKey("Occupation");
+                const activiteExtraKey = normalizeKey("Activité extra");
+                
+                if (entry.rawData[occupationKey] || entry.rawData[activiteExtraKey]) {
+                    entryHTML += `<div class="section-activites">`;
+                    entryHTML += `<div class="section-title"><i class="fas fa-list-alt"></i> AUTRES ACTIVITES</div>`;
+                    entryHTML += `<div class="section-decoration decoration-activites"><i class="fas fa-list-alt"></i></div>`;
+                    
+                    if (entry.rawData[occupationKey]) {
+                        entryHTML += `<div class="entry-row">
+                            <div class="entry-label"><i class="fas fa-tasks"></i> Occupation</div>
+                            <div class="entry-value">${formatValue(entry.rawData[occupationKey])}</div>
+                        </div>`;
+                    }
+                    
+                    // Détails Occupation
+                    const detailsOccupationKey = normalizeKey("Détails Occupation");
+                    if (entry.rawData[detailsOccupationKey]) {
+                        entryHTML += `<div class="entry-row">
+                            <div class="entry-label"><i class="fas fa-info-circle"></i> Détails occupation</div>
+                            <div class="entry-value">${formatValue(entry.rawData[detailsOccupationKey])}</div>
+                        </div>`;
+                    }
+                    
+                    if (entry.rawData[activiteExtraKey]) {
+                        entryHTML += `<div class="entry-row">
+                            <div class="entry-label"><i class="fas fa-plus-circle"></i> Activité extra</div>
+                            <div class="entry-value">${formatValue(entry.rawData[activiteExtraKey])}</div>
+                        </div>`;
+                    }
+                    
+                    // Détails Activité extra
+                    const detailsActiviteExtraKey = normalizeKey("Détails Activité extra");
+                    if (entry.rawData[detailsActiviteExtraKey]) {
+                        entryHTML += `<div class="entry-row">
+                            <div class="entry-label"><i class="fas fa-info-circle"></i> Détails activité extra</div>
+                            <div class="entry-value">${formatValue(entry.rawData[detailsActiviteExtraKey])}</div>
+                        </div>`;
+                    }
+                    
+                    // Apprentissage/formation
+                    const apprentissageKey = normalizeKey("Apprentissage/formation");
+                    if (entry.rawData[apprentissageKey]) {
+                        entryHTML += `<div class="entry-row">
+                            <div class="entry-label"><i class="fas fa-graduation-cap"></i> Apprentissage/formation</div>
+                            <div class="entry-value">${formatValue(entry.rawData[apprentissageKey])}</div>
+                        </div>`;
+                    }
+                    
+                    // Détails Apprentissage
+                    const detailsApprentissageKey = normalizeKey("Détails Apprentissage");
+                    if (entry.rawData[detailsApprentissageKey]) {
+                        entryHTML += `<div class="entry-row">
+                            <div class="entry-label"><i class="fas fa-info-circle"></i> Détails apprentissage</div>
+                            <div class="entry-value">${formatValue(entry.rawData[detailsApprentissageKey])}</div>
+                        </div>`;
+                    }
+                    
+                    // Distraction
+                    const distractionKey = normalizeKey("Distraction");
+                    if (entry.rawData[distractionKey]) {
+                        entryHTML += `<div class="entry-row">
+                            <div class="entry-label"><i class="fas fa-tv"></i> Distraction</div>
+                            <div class="entry-value">${formatValue(entry.rawData[distractionKey])}</div>
+                        </div>`;
+                    }
+                    
+                    entryHTML += `</div>`;
+                }
+                
+                // SECTION: ACTIVITE PHYSIQUE
+                const activitePhysiqueKey = normalizeKey("Activité physique");
+                if (entry.rawData[activitePhysiqueKey]) {
+                    entryHTML += `<div class="section-physique">`;
+                    entryHTML += `<div class="section-title"><i class="fas fa-running"></i> ACTIVITE PHYSIQUE</div>`;
+                    entryHTML += `<div class="section-decoration decoration-physique"><i class="fas fa-running"></i></div>`;
+                    
+                    entryHTML += `<div class="entry-row">
+                        <div class="entry-label"><i class="fas fa-running"></i> Activité physique</div>
+                        <div class="entry-value">${formatValue(entry.rawData[activitePhysiqueKey])}</div>
+                    </div>`;
+                    
+                    // Durée activité physique
+                    const dureePhysiqueKey = normalizeKey("Durée activité physique");
+                    if (entry.rawData[dureePhysiqueKey]) {
+                        entryHTML += `<div class="entry-row">
+                            <div class="entry-label"><i class="fas fa-clock"></i> Durée</div>
+                            <div class="entry-value time-value">${entry.rawData[dureePhysiqueKey]}</div>
+                        </div>`;
+                    }
+                    
+                    // Détails activité physique
+                    const detailsPhysiqueKey = normalizeKey("Détails activité physique");
+                    if (entry.rawData[detailsPhysiqueKey]) {
+                        entryHTML += `<div class="entry-row">
+                            <div class="entry-label"><i class="fas fa-info-circle"></i> Détails</div>
+                            <div class="entry-value">${formatValue(entry.rawData[detailsPhysiqueKey])}</div>
+                        </div>`;
+                    }
+                    
+                    entryHTML += `</div>`;
+                }
+                
+                // SECTION: ACTIVITE MENAGERE
+                if (entry.groupedData.activite_menagere && entry.groupedData.activite_menagere.length > 0) {
+                    entryHTML += `<div class="section-menagere">`;
+                    entryHTML += `<div class="section-title"><i class="fas fa-broom"></i> ACTIVITE MENAGERE</div>`;
+                    entryHTML += `<div class="section-decoration decoration-menagere"><i class="fas fa-broom"></i></div>`;
+                    
+                    entryHTML += `<div class="entry-row">
+                        <div class="entry-label"><i class="fas fa-home"></i> Tâches ménagères</div>
+                        <div class="entry-value">`;
+                    
+                    const menagereLabels = {
+                        'Chambre': '🛏️ Chambre',
+                        'Salon': '🛋️ Salon',
+                        'Cuisine': '🍳 Cuisine',
+                        'Salle de bain': '🚿 Salle de bain',
+                        'Toilette': '🚽 Toilette'
+                    };
+                    
+                    entry.groupedData.activite_menagere.forEach(item => {
+                        if (item.value && item.value.trim() !== '') {
+                            let room = item.header.replace('Activité ménagère: ', '');
+                            
+                            for (const [key, emojiLabel] of Object.entries(menagereLabels)) {
+                                if (room.includes(key)) {
+                                    room = emojiLabel;
+                                    break;
+                                }
+                            }
+                            
+                            const timeDisplay = extractMenagereTime(item.value);
+                            const valueWithoutTime = item.value.replace(/(\d+)\s*(min|minutes|m|h|heures|hr|hour)/i, '').trim();
+                            
+                            entryHTML += `<div class="menagere-label">${room} ${timeDisplay}</div>`;
+                            entryHTML += `<div class="menagere-value">${valueWithoutTime}</div><br>`;
+                        }
+                    });
+                    
+                    entryHTML += `</div></div>`;
+                    entryHTML += `</div>`;
+                }
+                
+                // SECTION: PROGRAMME avec nouveau champ "Avec la famille"
+                const proAmisKey = normalizeKey("Pro avec des amis");
+                const avecFamilleKey = normalizeKey("Avec la famille");
+                const proFamilleKey = normalizeKey("Pro avec la famille");
+                const evenementKey = normalizeKey("Evenement special / Fête");
+                
+                if (entry.rawData[proAmisKey] || entry.rawData[avecFamilleKey] || entry.rawData[proFamilleKey] || entry.rawData[evenementKey]) {
+                    entryHTML += `<div class="section-programme">`;
+                    entryHTML += `<div class="section-title"><i class="fas fa-calendar-check"></i> PROGRAMME</div>`;
+                    entryHTML += `<div class="section-decoration decoration-programme"><i class="fas fa-calendar-check"></i></div>`;
+                    
+                    if (entry.rawData[proAmisKey]) {
+                        entryHTML += `<div class="entry-row">
+                            <div class="entry-label"><i class="fas fa-user-friends"></i> Avec des amis</div>
+                            <div class="entry-value">${formatValue(entry.rawData[proAmisKey])}</div>
+                        </div>`;
+                    }
+                    
+                    if (entry.rawData[avecFamilleKey]) {
+                        entryHTML += `<div class="entry-row">
+                            <div class="entry-label"><i class="fas fa-users"></i> Avec la famille</div>
+                            <div class="entry-value">${formatValue(entry.rawData[avecFamilleKey])}</div>
+                        </div>`;
+                    }
+                    
+                    if (entry.rawData[proFamilleKey]) {
+                        entryHTML += `<div class="entry-row">
+                            <div class="entry-label"><i class="fas fa-users"></i> Programme avec famille</div>
+                            <div class="entry-value">${formatValue(entry.rawData[proFamilleKey])}</div>
+                        </div>`;
+                    }
+                    
+                    if (entry.rawData[evenementKey]) {
+                        entryHTML += `<div class="entry-row">
+                            <div class="entry-label"><i class="fas fa-calendar-star"></i> Événement spécial</div>
+                            <div class="entry-value">${formatValue(entry.rawData[evenementKey])}</div>
+                        </div>`;
+                    }
+                    
+                    entryHTML += `</div>`;
+                }
+                
+                // SECTION: NY AKO
+                const programmeNyAkoKey = normalizeKey("Programme avec ny ako");
+                const detailsNyAkoKey = normalizeKey("Details Programme avec ny ako");
+                
+                if (entry.rawData[programmeNyAkoKey] || entry.rawData[detailsNyAkoKey]) {
+                    entryHTML += `<div class="section-nyako">`;
+                    entryHTML += `<div class="section-title"><i class="fas fa-user"></i> NY AKO</div>`;
+                    entryHTML += `<div class="section-decoration decoration-nyako"><i class="fas fa-user"></i></div>`;
+                    
+                    if (entry.rawData[programmeNyAkoKey]) {
+                        entryHTML += `<div class="entry-row">
+                            <div class="entry-label"><i class="fas fa-calendar"></i> Programme</div>
+                            <div class="entry-value">${formatValue(entry.rawData[programmeNyAkoKey])}</div>
+                        </div>`;
+                    }
+                    
+                    if (entry.rawData[detailsNyAkoKey]) {
+                        entryHTML += `<div class="entry-row">
+                            <div class="entry-label"><i class="fas fa-info-circle"></i> Détails programme</div>
+                            <div class="entry-value">${formatValue(entry.rawData[detailsNyAkoKey])}</div>
+                        </div>`;
+                    }
+                    
+                    entryHTML += `</div>`;
+                }
+                
+                // SECTION: FINANCE
+                const depensesKey = normalizeKey("Depenses fixes");
+                const achatKey = normalizeKey("Achat du jour");
+                const autresDepensesKey = normalizeKey("Autres depenses non achat du jour");
+                
+                if (entry.rawData[depensesKey] || entry.rawData[achatKey] || entry.rawData[autresDepensesKey]) {
+                    entryHTML += `<div class="section-finance">`;
+                    entryHTML += `<div class="section-title"><i class="fas fa-money-bill-wave"></i> FINANCE</div>`;
+                    entryHTML += `<div class="section-decoration decoration-finance"><i class="fas fa-money-bill-wave"></i></div>`;
+                    
+                    if (entry.rawData[depensesKey]) {
+                        entryHTML += `<div class="entry-row">
+                            <div class="entry-label"><i class="fas fa-home"></i> Dépenses fixes</div>
+                            <div class="entry-value">${formatValue(entry.rawData[depensesKey])}</div>
+                        </div>`;
+                    }
+                    
+                    if (entry.rawData[achatKey]) {
+                        entryHTML += `<div class="entry-row">
+                            <div class="entry-label"><i class="fas fa-shopping-cart"></i> Achat du jour</div>
+                            <div class="entry-value">${formatValue(entry.rawData[achatKey])}</div>
+                        </div>`;
+                    }
+                    
+                    if (entry.rawData[autresDepensesKey]) {
+                        entryHTML += `<div class="entry-row">
+                            <div class="entry-label"><i class="fas fa-receipt"></i> Autres dépenses</div>
+                            <div class="entry-value">${formatValue(entry.rawData[autresDepensesKey])}</div>
+                        </div>`;
+                    }
+                    
+                    entryHTML += `</div>`;
+                }
+                
+                // SECTION: DEPLACEMENT
+                const lieuxKey = normalizeKey("Lieux du jour");
+                const moyenKey = normalizeKey("Moyen de locomotion");
+                const detailsDeplacementKey = normalizeKey("Details de mes déplacements/trajets/durée");
+                
+                if (entry.rawData[lieuxKey] || entry.rawData[moyenKey] || entry.rawData[detailsDeplacementKey]) {
+                    entryHTML += `<div class="section-deplacement">`;
+                    entryHTML += `<div class="section-title"><i class="fas fa-car"></i> DEPLACEMENT</div>`;
+                    entryHTML += `<div class="section-decoration decoration-deplacement"><i class="fas fa-car"></i></div>`;
+                    
+                    if (entry.rawData[lieuxKey]) {
+                        entryHTML += `<div class="entry-row">
+                            <div class="entry-label"><i class="fas fa-map-marked-alt"></i> Lieux du jour</div>
+                            <div class="entry-value">${formatValue(entry.rawData[lieuxKey])}</div>
+                        </div>`;
+                    }
+                    
+                    if (entry.rawData[moyenKey]) {
+                        entryHTML += `<div class="entry-row">
+                            <div class="entry-label"><i class="fas fa-bus"></i> Moyen de locomotion</div>
+                            <div class="entry-value">${formatValue(entry.rawData[moyenKey])}</div>
+                        </div>`;
+                    }
+                    
+                    if (entry.rawData[detailsDeplacementKey]) {
+                        entryHTML += `<div class="entry-row">
+                            <div class="entry-label"><i class="fas fa-route"></i> Détails déplacements</div>
+                            <div class="entry-value">${formatValue(entry.rawData[detailsDeplacementKey])}</div>
+                        </div>`;
+                    }
+                    
+                    entryHTML += `</div>`;
+                }
+                
+                // SECTION: RELATION & COMMUNICATION avec nouveau champ "Famille interaction"
+                const familleInteractionKey = normalizeKey("Famille interaction");
+                const rencontreKey = normalizeKey("Rencontre du jour");
+                const relationKey = normalizeKey("Relation avec mmr");
+                const discussionKey = normalizeKey("Discussion en réseau/sms/mail du jour");
+                
+                if (entry.rawData[familleInteractionKey] || entry.rawData[rencontreKey] || entry.rawData[relationKey] || entry.rawData[discussionKey]) {
+                    entryHTML += `<div class="section-relation">`;
+                    entryHTML += `<div class="section-title"><i class="fas fa-comments"></i> RELATION & COMMUNICATION</div>`;
+                    entryHTML += `<div class="section-decoration decoration-relation"><i class="fas fa-comments"></i></div>`;
+                    
+                    if (entry.rawData[familleInteractionKey]) {
+                        entryHTML += `<div class="entry-row">
+                            <div class="entry-label"><i class="fas fa-users"></i> Interaction famille</div>
+                            <div class="entry-value">${formatValue(entry.rawData[familleInteractionKey])}</div>
+                        </div>`;
+                    }
+                    
+                    if (entry.rawData[rencontreKey]) {
+                        entryHTML += `<div class="entry-row">
+                            <div class="entry-label"><i class="fas fa-handshake"></i> Rencontre du jour</div>
+                            <div class="entry-value">${formatValue(entry.rawData[rencontreKey])}</div>
+                        </div>`;
+                    }
+                    
+                    if (entry.rawData[relationKey]) {
+                        entryHTML += `<div class="entry-row">
+                            <div class="entry-label"><i class="fas fa-heart"></i> Relation avec mmr</div>
+                            <div class="entry-value">${formatValue(entry.rawData[relationKey])}</div>
+                        </div>`;
+                    }
+                    
+                    if (entry.rawData[discussionKey]) {
+                        entryHTML += `<div class="entry-row">
+                            <div class="entry-label"><i class="fas fa-comment-dots"></i> Discussions réseau</div>
+                            <div class="entry-value">${formatValue(entry.rawData[discussionKey])}</div>
+                        </div>`;
+                    }
+                    
+                    entryHTML += `</div>`;
+                }
+                
+                // SECTION: PERIODIQUE
+                if (entry.groupedData.monstruation && entry.groupedData.monstruation.length > 0) {
+                    entryHTML += `<div class="section-periodique">`;
+                    entryHTML += `<div class="section-title"><i class="fas fa-calendar-day"></i> PERIODIQUE</div>`;
+                    entryHTML += `<div class="section-decoration decoration-periodique"><i class="fas fa-calendar-day"></i></div>`;
+                    
+                    // Menstruation
+                    entryHTML += `<div class="entry-row">
+                        <div class="entry-label"><i class="fas fa-female"></i> Menstruation</div>
+                        <div class="entry-value">`;
+                    
+                    const menstruationItems = [];
+                    let jPlusValue = '';
+                    
+                    entry.groupedData.monstruation.forEach(item => {
+                        if (item.value && item.value.trim() !== '') {
+                            let formattedValue = item.value.toLowerCase().trim();
+                            const match = item.header.match(/\[([^\]]+)\]/);
+                            
+                            if (match) {
+                                const aspect = match[1].toLowerCase();
+                                let emoji = '';
+                                
+                                Object.entries(menstruationEmojis).forEach(([keyword, emojiChar]) => {
+                                    if (aspect.includes(keyword) || formattedValue.includes(keyword)) {
+                                        emoji = emojiChar;
+                                    }
+                                });
+                                
+                                if (aspect.includes('jour') || aspect.includes('j+')) {
+                                    jPlusValue = formattedValue;
+                                    menstruationItems.push(`<span class="menstruation-item">📅 J+${formattedValue.replace(/[^0-9]/g, '') || '?'}</span>`);
+                                } else if (formattedValue !== 'non' && formattedValue !== 'aucun' && formattedValue !== 'pas') {
+                                    menstruationItems.push(`<span class="menstruation-item">${emoji} ${aspect}</span>`);
+                                }
+                            }
+                        }
+                    });
+                    
+                    if (menstruationItems.length > 0) {
+                        entryHTML += `<div class="cycle-emojis">${menstruationItems.join(' ')}</div>`;
+                    } else {
+                        entryHTML += 'Aucune information';
+                    }
+                    
+                    entryHTML += `</div></div>`;
+                    
+                    // Lunette et Details lunette sur même ligne
+                    const lunetteKey = normalizeKey("Lunette");
+                    const detailsLunetteKey = normalizeKey("Details lunette");
+                    
+                    if (entry.rawData[lunetteKey] || entry.rawData[detailsLunetteKey]) {
+                        entryHTML += `<div class="double-row">`;
+                        
+                        if (entry.rawData[lunetteKey]) {
+                            entryHTML += `<div class="double-item">
+                                <div class="compact-label"><i class="fas fa-glasses"></i> Lunette</div>
+                                <div class="compact-value">${entry.rawData[lunetteKey]}</div>
+                            </div>`;
+                        } else {
+                            entryHTML += `<div class="double-item">
+                                <div class="compact-label"><i class="fas fa-glasses"></i> Lunette</div>
+                                <div class="compact-value"></div>
+                            </div>`;
+                        }
+                        
+                        if (entry.rawData[detailsLunetteKey]) {
+                            entryHTML += `<div class="double-item">
+                                <div class="compact-label"><i class="fas fa-info-circle"></i> Détails lunette</div>
+                                <div class="compact-value">${formatValue(entry.rawData[detailsLunetteKey])}</div>
+                            </div>`;
+                        } else {
+                            entryHTML += `<div class="double-item">
+                                <div class="compact-label"><i class="fas fa-info-circle"></i> Détails lunette</div>
+                                <div class="compact-value"></div>
+                            </div>`;
+                        }
+                        
+                        entryHTML += `</div>`;
+                    }
+                    
+                    // Autres champs périodiques
+                    const periodicFields = [
+                        {key: "Anti parasite", label: "Anti parasite", icon: "fa-bug"},
+                        {key: "Jirama", label: "Jirama", icon: "fa-bolt"},
+                        {key: "Crédit", label: "Crédit", icon: "fa-credit-card"}
+                    ];
+                    
+                    periodicFields.forEach(field => {
+                        const fieldKey = normalizeKey(field.key);
+                        if (entry.rawData[fieldKey]) {
+                            entryHTML += `<div class="entry-row">
+                                <div class="entry-label"><i class="fas ${field.icon}"></i> ${field.label}</div>
+                                <div class="entry-value">${formatValue(entry.rawData[fieldKey])}</div>
+                            </div>`;
+                        }
+                    });
+                    
+                    entryHTML += `</div>`;
+                }
+                
+                // SECTION: SANTE, SOIN, HYGIENE avec nouveau champ "Suivi santé"
+                const lavageKey = normalizeKey("Lavage");
+                const extraKey = normalizeKey("Extra");
+                const bijouKey = normalizeKey("Bijou inhabituel");
+                const detailsSoinKey = normalizeKey("Details soin du jour");
+                const maladieKey = normalizeKey("Maladie");
+                const suiviSanteKey = normalizeKey("Suivi santé");
+                
+                if (entry.rawData[lavageKey] || entry.rawData[extraKey] || entry.rawData[bijouKey] || 
+                    entry.rawData[detailsSoinKey] || entry.rawData[maladieKey] || entry.rawData[suiviSanteKey]) {
+                    entryHTML += `<div class="section-sante">`;
+                    entryHTML += `<div class="section-title"><i class="fas fa-heartbeat"></i> SANTE, SOIN, HYGIENE</div>`;
+                    entryHTML += `<div class="section-decoration decoration-sante"><i class="fas fa-heartbeat"></i></div>`;
+                    
+                    if (entry.rawData[lavageKey]) {
+                        entryHTML += `<div class="entry-row">
+                            <div class="entry-label"><i class="fas fa-shower"></i> Lavage</div>
+                            <div class="entry-value">${formatValue(entry.rawData[lavageKey])}</div>
+                        </div>`;
+                    }
+                    
+                    if (entry.rawData[extraKey]) {
+                        entryHTML += `<div class="entry-row">
+                            <div class="entry-label"><i class="fas fa-plus-circle"></i> Extra</div>
+                            <div class="entry-value">${formatValue(entry.rawData[extraKey])}</div>
+                        </div>`;
+                    }
+                    
+                    if (entry.rawData[bijouKey]) {
+                        entryHTML += `<div class="entry-row">
+                            <div class="entry-label"><i class="fas fa-gem"></i> Bijou inhabituel</div>
+                            <div class="entry-value">${formatValue(entry.rawData[bijouKey])}</div>
+                        </div>`;
+                    }
+                    
+                    if (entry.rawData[detailsSoinKey]) {
+                        entryHTML += `<div class="entry-row">
+                            <div class="entry-label"><i class="fas fa-info-circle"></i> Détails soin</div>
+                            <div class="entry-value">${formatValue(entry.rawData[detailsSoinKey])}</div>
+                        </div>`;
+                    }
+                    
+                    if (entry.rawData[maladieKey]) {
+                        entryHTML += `<div class="entry-row">
+                            <div class="entry-label"><i class="fas fa-head-side-cough"></i> Maladie</div>
+                            <div class="entry-value">${formatValue(entry.rawData[maladieKey])}</div>
+                        </div>`;
+                    }
+                    
+                    if (entry.rawData[suiviSanteKey]) {
+                        entryHTML += `<div class="entry-row">
+                            <div class="entry-label"><i class="fas fa-heartbeat"></i> Suivi santé</div>
+                            <div class="entry-value">${formatValue(entry.rawData[suiviSanteKey])}</div>
+                        </div>`;
+                    }
+                    
+                    entryHTML += `</div>`;
+                }
+                
+                // SECTION: POIDS & MENSURATION avec nouveaux champs
+                const poidsKey = normalizeKey("Poids");
+                const tourHancheKey = normalizeKey("Tour de hanche");
+                const tourCuissesKey = normalizeKey("Tour du haut des cuisse");
+                const tourJambeKey = normalizeKey("Tour de jambe");
+                const tourTailleKey = normalizeKey("Tour de taille");
+                const tourVentreKey = normalizeKey("Tour de ventre");
+                const tourPoitrineKey = normalizeKey("Tour de poitrine");
+                const tourBrasKey = normalizeKey("Tour de bras");
+                
+                if (entry.rawData[poidsKey] || entry.rawData[tourHancheKey] || entry.rawData[tourCuissesKey] || 
+                    entry.rawData[tourJambeKey] || entry.rawData[tourTailleKey] || entry.rawData[tourVentreKey] || 
+                    entry.rawData[tourPoitrineKey] || entry.rawData[tourBrasKey]) {
+                    entryHTML += `<div class="section-poids">`;
+                    entryHTML += `<div class="section-title"><i class="fas fa-weight-scale"></i> POIDS & MENSURATION</div>`;
+                    entryHTML += `<div class="section-decoration decoration-poids"><i class="fas fa-weight-scale"></i></div>`;
+                    
+                    entryHTML += `<div class="measurement-table">`;
+                    
+                    const measurementFields = [
+                        {key: "Poids", label: "Poids", icon: "fa-weight-scale"},
+                        {key: "Tour de hanche", label: "Tour de hanche", icon: "fa-ruler"},
+                        {key: "Tour du haut des cuisse", label: "Tour haut cuisses", icon: "fa-ruler"},
+                        {key: "Tour de jambe", label: "Tour de jambe", icon: "fa-ruler"},
+                        {key: "Tour de taille", label: "Tour de taille", icon: "fa-ruler"},
+                        {key: "Tour de ventre", label: "Tour de ventre", icon: "fa-ruler"},
+                        {key: "Tour de poitrine", label: "Tour de poitrine", icon: "fa-ruler"},
+                        {key: "Tour de bras", label: "Tour de bras", icon: "fa-ruler"}
+                    ];
+                    
+                    measurementFields.forEach(field => {
+                        const fieldKey = normalizeKey(field.key);
+                        if (entry.rawData[fieldKey]) {
+                            entryHTML += `<div class="measurement-item">
+                                <div class="measurement-label">${field.label}</div>
+                                <div class="measurement-value">${entry.rawData[fieldKey]}</div>
+                            </div>`;
+                        }
+                    });
+                    
+                    entryHTML += `</div>`;
+                    entryHTML += `</div>`;
+                }
+                
+                // SECTION: BILAN PERSONNEL DE LA JOURNEE avec nouveaux champs
+                const stressKey = normalizeKey("Stress ressenti, pensée dominante, quelque chose de positif aujourd'hui");
+                const difficultesKey = normalizeKey("Difficultés rencontrées");
+                const erreurKey = normalizeKey("Erreur à ne pas répéter");
+                const leconsKey = normalizeKey("Leçons du jour");
+                const inhabituelKey = normalizeKey("Inhabituel");
+                const autresChoseKey = normalizeKey("Autres chose");
+                const cadeauKey = normalizeKey("Ce que j'ai reçu en cadeau aujourd'hui");
+                const etatKey = normalizeKey("Etat mental et emotionnel");
+                const fatigueKey = normalizeKey("Fatigue");
+                const photosKey = normalizeKey("Photos du jour");
+                const rohyKey = normalizeKey("rohy fiche");
+                const deroulementJourneeKey = normalizeKey("Déroulement journée");
+                const partageJourKey = normalizeKey("Partage du jour");
+                
+                if (entry.rawData[stressKey] || entry.rawData[difficultesKey] || entry.rawData[leconsKey] || 
+                    entry.rawData[deroulementJourneeKey] || entry.rawData[partageJourKey] || entry.rawData[rohyKey] || 
+                    entry.rawData[photosKey]) {
+                    entryHTML += `<div class="section-bilan">`;
+                    entryHTML += `<div class="section-title"><i class="fas fa-chart-line"></i> BILAN PERSONNEL DE LA JOURNEE</div>`;
+                    entryHTML += `<div class="section-decoration decoration-bilan"><i class="fas fa-chart-line"></i></div>`;
+                    
+                    const bilanFields = [
+                        {key: "Stress ressenti, pensée dominante, quelque chose de positif aujourd'hui", label: "Stress/positif du jour", icon: "fa-brain"},
+                        {key: "Difficultés rencontrées", label: "Difficultés rencontrées", icon: "fa-exclamation-triangle"},
+                        {key: "Erreur à ne pas répéter", label: "Erreur à ne pas répéter", icon: "fa-times-circle"},
+                        {key: "Leçons du jour", label: "Leçons du jour", icon: "fa-graduation-cap"},
+                        {key: "Inhabituel", label: "Inhabituel", icon: "fa-star"},
+                        {key: "Autres chose", label: "Autres choses", icon: "fa-ellipsis-h"},
+                        {key: "Déroulement journée", label: "Déroulement journée", icon: "fa-list-ol"},
+                        {key: "Partage du jour", label: "Partage du jour", icon: "fa-comments"},
+                        {key: "Ce que j'ai reçu en cadeau aujourd'hui", label: "Cadeau reçu", icon: "fa-gift"},
+                        {key: "Etat mental et emotionnel", label: "État mental/émotionnel", icon: "fa-smile"},
+                        {key: "Fatigue", label: "Fatigue", icon: "fa-bed"},
+                        {key: "Photos du jour", label: "Photos du jour", icon: "fa-camera"},
+                        {key: "rohy fiche", label: "Lien fiche", icon: "fa-link"}
+                    ];
+                    
+                    bilanFields.forEach(field => {
+                        const fieldKey = normalizeKey(field.key);
+                        if (entry.rawData[fieldKey]) {
+                            if (field.key === "Fatigue") {
+                                const fatigueStars = createStars(entry.rawData[fieldKey]);
+                                entryHTML += `<div class="entry-row">
+                                    <div class="entry-label"><i class="fas ${field.icon}"></i> ${field.label}</div>
+                                    <div class="entry-value">${fatigueStars || entry.rawData[fieldKey]}</div>
+                                </div>`;
+                            } else {
+                                entryHTML += `<div class="entry-row">
+                                    <div class="entry-label"><i class="fas ${field.icon}"></i> ${field.label}</div>
+                                    <div class="entry-value">${formatValue(entry.rawData[fieldKey])}</div>
+                                </div>`;
+                            }
+                        }
+                    });
+                    
+                    entryHTML += `</div>`;
+                }
+                
+                entryHTML += '</div></div>';
+                journalDisplay.innerHTML = entryHTML;
+                
+            } else {
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                const formattedDate = date.toLocaleDateString('fr-FR', options);
+                
+                journalDisplay.innerHTML = `
+                    <div class="journal-entry">
+                        <div class="entry-header">
+                            <div class="entry-date">${formattedDate}</div>
+                        </div>
+                        <div class="no-entry">
+                            <i class="fas fa-feather-alt"></i>
+                            <p>Aucune entrée de journal pour cette date. Profitez de cette journée !</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        
+        // Formater les valeurs
+        function formatValue(value) {
+            if (!value) return '';
+            return value
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/\n/g, '<br>')
+                .replace(/\r\n/g, '<br>');
+        }
+        
+        // Initialiser le calendrier
+        function initCalendar() {
+            renderCalendar(currentMonth, currentYear);
+            setupEventListeners();
+        }
+        
+        // Afficher le calendrier
+        function renderCalendar(month, year) {
+            const monthNames = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+                                "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+            
+            document.querySelector('.month-year').textContent = `${monthNames[month]} ${year}`;
+            
+            const firstDay = new Date(Date.UTC(year, month, 1));
+            const lastDay = new Date(Date.UTC(year, month + 1, 0));
+            const firstDayIndex = firstDay.getUTCDay();
+            const adjustedFirstDayIndex = firstDayIndex === 0 ? 6 : firstDayIndex - 1;
+            const daysInMonth = lastDay.getUTCDate();
+            const prevMonthLastDay = new Date(Date.UTC(year, month, 0)).getUTCDate();
+            
+            let calendarHTML = '';
+            
+            for (let i = adjustedFirstDayIndex; i > 0; i--) {
+                const day = prevMonthLastDay - i + 1;
+                calendarHTML += `<div class="day empty">${day}</div>`;
+            }
+            
+            const today = new Date();
+            const normalizedToday = normalizeDate(today);
+            let entriesThisMonth = 0;
+            
+            for (let i = 1; i <= daysInMonth; i++) {
+                const date = new Date(Date.UTC(year, month, i));
+                const dateKey = getDateKey(date);
+                const normalizedDate = normalizeDate(date);
+                
+                const hasEntry = journalData.some(entry => 
+                    datesAreEqual(entry.date, normalizedDate)
+                );
+                
+                if (hasEntry) entriesThisMonth++;
+                
+                let dayClass = "day";
+                if (datesAreEqual(date, normalizedToday)) {
+                    dayClass += " today";
+                }
+                if (hasEntry) {
+                    dayClass += " has-entry";
+                }
+                if (datesAreEqual(date, currentDate)) {
+                    dayClass += " selected";
+                }
+                
+                calendarHTML += `
+                    <div class="${dayClass}" data-date="${dateKey}">
+                        ${i}
+                    </div>
+                `;
+            }
+            
+            const totalCells = 42;
+            const daysSoFar = adjustedFirstDayIndex + daysInMonth;
+            const remainingCells = totalCells - daysSoFar;
+            
+            for (let i = 1; i <= remainingCells; i++) {
+                calendarHTML += `<div class="day empty">${i}</div>`;
+            }
+            
+            document.getElementById('calendar-days').innerHTML = calendarHTML;
+            document.getElementById('current-month-count').textContent = entriesThisMonth;
+            
+            document.querySelectorAll('.day:not(.empty)').forEach(day => {
+                day.addEventListener('click', function() {
+                    const dateStr = this.getAttribute('data-date');
+                    const [year, month, dayNum] = dateStr.split('-').map(Number);
+                    const date = new Date(Date.UTC(year, month - 1, dayNum));
+                    
+                    currentDate = date;
+                    
+                    document.querySelectorAll('.day').forEach(d => d.classList.remove('selected'));
+                    this.classList.add('selected');
+                    
+                    showEntryForDate(date);
+                });
+            });
+        }
+        
+        // Configuration des écouteurs d'événements
+        function setupEventListeners() {
+            document.querySelector('.prev-month').addEventListener('click', function() {
+                currentMonth--;
+                if (currentMonth < 0) {
+                    currentMonth = 11;
+                    currentYear--;
+                }
+                renderCalendar(currentMonth, currentYear);
+            });
+            
+            document.querySelector('.next-month').addEventListener('click', function() {
+                currentMonth++;
+                if (currentMonth > 11) {
+                    currentMonth = 0;
+                    currentYear++;
+                }
+                renderCalendar(currentMonth, currentYear);
+            });
+            
+            const todayBtn = document.createElement('button');
+            todayBtn.className = 'nav-btn';
+            todayBtn.innerHTML = '<i class="fas fa-calendar-day"></i>';
+            todayBtn.title = "Aller à aujourd'hui";
+            todayBtn.style.marginLeft = '10px';
+            
+            todayBtn.addEventListener('click', function() {
+                const today = new Date();
+                currentDate = normalizeDate(today);
+                currentMonth = today.getMonth();
+                currentYear = today.getFullYear();
+                renderCalendar(currentMonth, currentYear);
+                showEntryForDate(today);
+            });
+            
+            document.querySelector('.calendar-nav').appendChild(todayBtn);
+        }
+        
+        // Mettre à jour les statistiques
+        function updateStats() {
+            const statsElement = document.querySelector('.stats');
+            statsElement.innerHTML = `
+                <div><span>${journalData.length}</span> entrées chargées</div>
+                <div><span id="current-month-count">0</span> entrées ce mois-ci</div>
+            `;
+        }
+        
+        // Fonctions d'état d'interface
+        function showLoading(isLoading) {
+            const journalDisplay = document.getElementById('journal-display');
+            if (isLoading) {
+                journalDisplay.innerHTML = `
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin"></i> Chargement des données depuis Google Sheets...
+                    </div>
+                `;
+            }
+        }
+        
+        function showErrorMessage(error) {
+            const journalDisplay = document.getElementById('journal-display');
+            journalDisplay.innerHTML = `
+                <div class="error-message">
+                    <i class="fas fa-exclamation-triangle"></i> 
+                    <strong>Erreur lors du chargement des données</strong><br>
+                    ${error.message || 'Impossible de charger les données depuis Google Sheets.'}
+                </div>
+            `;
+        }
+        
+        function showNoDataMessage() {
+            const journalDisplay = document.getElementById('journal-display');
+            journalDisplay.innerHTML = `
+                <div class="journal-entry">
+                    <div class="no-entry">
+                        <i class="fas fa-database"></i>
+                        <p>Aucune donnée trouvée dans le Google Sheet.</p>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Charger les données au démarrage
+        document.addEventListener('DOMContentLoaded', loadJournalData);
+    </script>
+</body>
+</html>
