@@ -150,8 +150,9 @@
         }
         
         .day {
-            height: 36px;
+            height: 42px;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             border-radius: 6px;
@@ -159,6 +160,8 @@
             transition: all 0.2s;
             font-weight: 500;
             font-size: 0.9rem;
+            position: relative;
+            padding-top: 4px;
         }
         
         .day:hover {
@@ -198,6 +201,37 @@
             background-color: #f9f5f0;
             color: #8a6d3b;
             font-weight: 700;
+        }
+        
+        .day-weight {
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-top: 2px;
+            color: #4caf50;
+            background-color: rgba(76, 175, 80, 0.15);
+            padding: 1px 4px;
+            border-radius: 3px;
+            display: inline-block;
+            min-width: 30px;
+            text-align: center;
+        }
+        
+        .day-menstruation {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            font-size: 0.8rem;
+            color: #ff4081;
+        }
+        
+        .day-menstruation-indicator {
+            width: 6px;
+            height: 6px;
+            background-color: #ff4081;
+            border-radius: 50%;
+            position: absolute;
+            top: 3px;
+            right: 3px;
         }
         
         .loading {
@@ -1278,6 +1312,10 @@
             .measurement-table {
                 grid-template-columns: repeat(2, 1fr);
             }
+            
+            .day {
+                height: 46px;
+            }
         }
         
         .error-message {
@@ -1448,6 +1486,7 @@
                 <div class="stats" id="calendar-stats">
                     <div><span>0</span> entrées chargées</div>
                     <div><span id="current-month-count">0</span> entrées ce mois-ci</div>
+                    <div><span id="menstruation-count">0</span> jours de menstruation</div>
                 </div>
                 
                 <div class="data-source">
@@ -3426,17 +3465,44 @@
             const today = new Date();
             const normalizedToday = normalizeDate(today);
             let entriesThisMonth = 0;
+            let menstruationDays = 0;
             
             for (let i = 1; i <= daysInMonth; i++) {
                 const date = new Date(Date.UTC(year, month, i));
                 const dateKey = getDateKey(date);
                 const normalizedDate = normalizeDate(date);
                 
-                const hasEntry = journalData.some(entry => 
-                    datesAreEqual(entry.date, normalizedDate)
-                );
+                const entry = journalData.find(e => datesAreEqual(e.date, normalizedDate));
+                const hasEntry = !!entry;
                 
-                if (hasEntry) entriesThisMonth++;
+                let weight = '';
+                let hasMenstruation = false;
+                
+                if (entry) {
+                    entriesThisMonth++;
+                    
+                    // Récupérer le poids du jour
+                    const poidsKey = normalizeKey("Poids");
+                    if (entry.rawData[poidsKey]) {
+                        weight = entry.rawData[poidsKey];
+                    }
+                    
+                    // Vérifier si menstruation
+                    if (entry.groupedData.monstruation && entry.groupedData.monstruation.length > 0) {
+                        const hasMenstruationData = entry.groupedData.monstruation.some(item => {
+                            if (item.value && item.value.trim() !== '') {
+                                const value = item.value.toLowerCase().trim();
+                                return value !== 'non' && value !== 'aucun' && value !== 'pas' && value !== '';
+                            }
+                            return false;
+                        });
+                        
+                        if (hasMenstruationData) {
+                            hasMenstruation = true;
+                            menstruationDays++;
+                        }
+                    }
+                }
                 
                 let dayClass = "day";
                 if (datesAreEqual(date, normalizedToday)) {
@@ -3452,6 +3518,8 @@
                 calendarHTML += `
                     <div class="${dayClass}" data-date="${dateKey}">
                         ${i}
+                        ${weight ? `<div class="day-weight">${weight}kg</div>` : ''}
+                        ${hasMenstruation ? `<div class="day-menstruation">🩸</div>` : ''}
                     </div>
                 `;
             }
@@ -3466,6 +3534,7 @@
             
             document.getElementById('calendar-days').innerHTML = calendarHTML;
             document.getElementById('current-month-count').textContent = entriesThisMonth;
+            document.getElementById('menstruation-count').textContent = menstruationDays;
             
             document.querySelectorAll('.day:not(.empty)').forEach(day => {
                 day.addEventListener('click', function() {
@@ -3527,6 +3596,7 @@
             statsElement.innerHTML = `
                 <div><span>${journalData.length}</span> entrées chargées</div>
                 <div><span id="current-month-count">0</span> entrées ce mois-ci</div>
+                <div><span id="menstruation-count">0</span> jours de menstruation</div>
             `;
         }
         
