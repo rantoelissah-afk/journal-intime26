@@ -18,7 +18,7 @@
             background-color: #f9f5f0;
             color: #333;
             line-height: 1.4;
-            padding: 15px;
+            padding: 10px;
             min-height: 100vh;
         }
         
@@ -205,15 +205,16 @@
         
         .day-weight {
             font-size: 0.7rem;
-            font-weight: 600;
+            font-weight: bold;
             margin-top: 2px;
-            color: #4caf50;
-            background-color: rgba(76, 175, 80, 0.15);
+            color: #ffcc00 !important;
+            background-color: rgba(255, 204, 0, 0.2) !important;
             padding: 1px 4px;
             border-radius: 3px;
             display: inline-block;
             min-width: 30px;
             text-align: center;
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.2);
         }
         
         .day-menstruation {
@@ -611,6 +612,16 @@
             color: #666;
         }
         
+        .entry-value a {
+            color: #8a6d3b;
+            text-decoration: underline;
+            font-weight: 600;
+        }
+        
+        .entry-value a:hover {
+            color: #d4a762;
+        }
+        
         /* Style gris clair pour les heures et durées */
         .time-value {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
@@ -931,7 +942,304 @@
             color: #0097a7;
             border-left: 2px solid #00bcd4;
         }
-        
+        /* APERÇU PHOTOS DU JOUR - AMÉLIORÉ */
+/* APERÇU PHOTOS DU JOUR - 7x7cm CHACUN */
+.photos-preview-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin: 20px 0;
+    padding: 20px;
+    background: linear-gradient(135deg, rgba(255, 253, 245, 0.9), rgba(255, 253, 245, 0.95));
+    border-radius: 12px;
+    border: 3px solid #FFD700;
+    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.2);
+    justify-content: center;
+}
+
+.photo-preview-item {
+    position: relative;
+    text-align: center;
+    width: 7cm; /* 7 cm de largeur */
+    height: 7cm; /* 7 cm de hauteur */
+    flex-shrink: 0;
+}
+
+.photo-thumbnail-link {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+    border: 4px solid #FFD700;
+    position: relative;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    text-decoration: none;
+}
+
+.photo-thumbnail-link:hover {
+    transform: translateY(-8px) scale(1.08);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3);
+    border-color: #FFA500;
+}
+
+.photo-thumbnail {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+}
+
+.photo-thumbnail-link:hover .photo-thumbnail {
+    transform: scale(1.15);
+}
+
+.photo-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+    color: white;
+    padding: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    opacity: 0;
+    transform: translateY(100%);
+    transition: all 0.4s ease;
+    text-align: center;
+    backdrop-filter: blur(2px);
+}
+
+.photo-thumbnail-link:hover .photo-overlay {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.photo-info {
+    margin-top: 10px;
+    font-size: 0.85rem;
+    color: #666;
+    word-break: break-word;
+    line-height: 1.3;
+    padding: 0 5px;
+    font-weight: 500;
+}
+
+/* MODAL PHOTO */
+.photo-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 3000;
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* MODAL PHOTO - Agrandi pour correspondre */
+.modal-content {
+    max-width: 95%;
+    max-height: 95%;
+    position: relative;
+    text-align: center;
+}
+
+.modal-photo {
+    max-width: 90vw;
+    max-height: 80vh;
+    object-fit: contain;
+    border-radius: 12px;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+    animation: zoomIn 0.4s ease;
+}
+
+.modal-caption {
+    color: white;
+    text-align: center;
+    margin-top: 20px;
+    font-size: 1.1rem;
+    max-width: 85%;
+    margin-left: auto;
+    margin-right: auto;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 12px 20px;
+    border-radius: 8px;
+    backdrop-filter: blur(5px);
+}
+
+@keyframes zoomIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.close-modal {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    color: white;
+    font-size: 40px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    z-index: 3001;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background 0.3s;
+}
+
+.close-modal:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.modal-caption {
+    color: white;
+    text-align: center;
+    margin-top: 15px;
+    font-size: 1rem;
+    max-width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 10px 15px;
+    border-radius: 5px;
+}
+
+/* GALLERY CONTROLS */
+.gallery-controls {
+    position: absolute;
+    top: 50%;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 20px;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.gallery-btn {
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+    pointer-events: all;
+}
+
+.gallery-btn:hover {
+    background: rgba(0, 0, 0, 0.8);
+    transform: scale(1.1);
+}
+
+.gallery-counter {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+    color: white;
+    text-align: center;
+    font-size: 0.9rem;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 5px 10px;
+    border-radius: 20px;
+    display: inline-block;
+    width: fit-content;
+    margin: 0 auto;
+}
+
+/* STYLE POUR LIENS SIMPLES (fallback) */
+.photo-link-simple {
+    display: inline-block;
+    margin: 5px 10px 5px 0;
+    padding: 8px 15px;
+    background: linear-gradient(135deg, #1a73e8, #0d47a1);
+    color: white;
+    border-radius: 20px;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.3s;
+    border: 1px solid #0d47a1;
+}
+
+.photo-link-simple:hover {
+    background: linear-gradient(135deg, #0d47a1, #1a73e8);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(26, 115, 232, 0.3);
+}
+
+/* RESPONSIVE POUR PHOTOS */
+@media (max-width: 768px) {
+    .photos-preview-container {
+        gap: 10px;
+        padding: 10px;
+    }
+    
+    .photo-preview-item {
+        width: 120px;
+    }
+    
+    .photo-thumbnail-link {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .gallery-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+    }
+    
+    .close-modal {
+        top: 15px;
+        right: 15px;
+        font-size: 30px;
+        width: 40px;
+        height: 40px;
+    }
+    
+    .modal-caption {
+        font-size: 0.9rem;
+        max-width: 95%;
+    }
+}
+
+@media (max-width: 480px) {
+    .photo-preview-item {
+        width: 100px;
+    }
+    
+    .photo-thumbnail-link {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .photo-info {
+        font-size: 0.7rem;
+    }
+}
         /* Icônes de décoration pour les sections */
         .section-decoration {
             position: absolute;
@@ -1254,69 +1562,402 @@
             font-size: 0.85rem;
         }
         
-        @media (max-width: 768px) {
-            .main-content {
-                flex-direction: column;
-            }
-            
-            .calendar-section, .journal-section {
-                width: 100%;
-            }
-            
-            .calendar-section {
-                border-right: none;
-                border-bottom: 1px solid #eee;
-            }
-            
-            h1 {
-                font-size: 1.8rem;
-            }
-            
-            .entry-date {
-                font-size: 1.1rem;
-            }
-            
-            .entry-label {
-                flex: 0 0 130px;
-            }
-            
-            .journal-section {
-                max-height: none;
-                overflow-y: visible;
-            }
-            
-            .compact-row-sommeil {
-                flex-direction: column;
-                gap: 6px;
-            }
-            
-            .compact-item-sommeil {
-                max-width: 100%;
-            }
-            
-            .meal-time-location {
-                flex-direction: column;
-                gap: 6px;
-            }
-            
-            .travail-time-container {
-                flex-direction: column;
-                gap: 6px;
-            }
-            
-            .travail-content-row {
-                flex-direction: column;
-                gap: 8px;
-            }
-            
-            .measurement-table {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .day {
-                height: 46px;
-            }
+       @media (max-width: 768px) {
+    /* RÉINITIALISATION COMPLÈTE POUR RENTRER DANS L'ÉCRAN */
+    * {
+        box-sizing: border-box;
+    }
+    
+    body {
+        padding: 3px;
+        font-size: 14px;
+        line-height: 1.3;
+    }
+    
+    .container {
+        margin-top: 70px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    
+    header {
+        padding: 12px 15px;
+    }
+    
+    h1 {
+        font-size: 1.5rem;
+        margin-bottom: 5px;
+    }
+    
+    .subtitle {
+        font-size: 0.85rem;
+    }
+    
+    .main-content {
+        flex-direction: column;
+        min-height: auto;
+    }
+    
+    .calendar-section, .journal-section {
+        width: 100%;
+        padding: 12px 10px;
+        min-width: 100%;
+    }
+    
+    .calendar-section {
+        border-right: none;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 15px;
+    }
+    
+    h2 {
+        font-size: 1.2rem;
+        margin-bottom: 8px;
+        padding-bottom: 5px;
+    }
+    
+    /* JOURNAL ENTRY - ULTRA COMPACT */
+    .journal-entry::before {
+        display: none; /* SUPPRIMER L'ÉCOLABE */
+    }
+    
+    .journal-entry {
+        border-left: 2px solid #d4a762;
+        padding: 10px 8px;
+        margin-bottom: 10px;
+    }
+    
+    .entry-header {
+        margin-bottom: 8px;
+        padding-bottom: 6px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+    
+    .entry-date {
+        font-size: 1rem;
+        line-height: 1.2;
+    }
+    
+    /* SECTIONS - TRÈS COMPACTES */
+    [class*="section-"] {
+        padding: 8px !important;
+        margin-bottom: 10px !important;
+        border-width: 1px !important;
+        border-radius: 6px !important;
+    }
+    
+    .section-title {
+        font-size: 0.85rem !important;
+        padding: 5px 6px !important;
+        margin: 8px 0 6px 0 !important;
+        gap: 5px;
+    }
+    
+    .section-title i {
+        font-size: 0.9rem;
+    }
+    
+    .section-decoration {
+        display: none;
+    }
+    
+    /* LIGNES D'ENTRÉE - OPTIMISÉES */
+    .entry-row {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 6px;
+        padding: 0;
+        align-items: stretch;
+        gap: 3px;
+    }
+    
+    .entry-label {
+        flex: 0 0 auto !important;
+        width: 100% !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
+        padding: 4px 0 2px 0;
+        font-size: 0.8rem !important;
+        border-bottom: 1px dashed #e0d6c2;
+        margin-bottom: 3px;
+    }
+    
+    .entry-label i {
+        font-size: 0.75rem;
+        min-width: 16px;
+    }
+    
+    .entry-value {
+        flex: 1 1 auto !important;
+        width: 100% !important;
+        font-size: 0.85rem !important;
+        padding: 5px 6px !important;
+        line-height: 1.3 !important;
+        min-height: auto;
+    }
+    
+    /* COMPACT ROWS - TOUT EN COLONNE */
+    .compact-row-sommeil,
+    .double-row,
+    .triple-row,
+    .travail-time-container,
+    .meal-time-location,
+    .travail-content-row {
+        flex-direction: column;
+        gap: 5px;
+        margin-bottom: 5px;
+    }
+    
+    .compact-item-sommeil,
+    .compact-item,
+    .double-item,
+    .triple-item,
+    .meal-time-card,
+    .meal-location-card,
+    .travail-time-card,
+    .travail-content-item {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 5px 6px !important;
+        min-height: 32px;
+    }
+    
+    .compact-label-sommeil,
+    .compact-label {
+        min-width: 85px !important;
+        font-size: 0.8rem !important;
+    }
+    
+    .compact-value-sommeil,
+    .compact-value {
+        font-size: 0.85rem !important;
+    }
+    
+    /* MEAL CONTAINERS */
+    .meal-container {
+        padding: 8px;
+        margin-bottom: 10px;
+    }
+    
+    .meal-title {
+        font-size: 0.9rem;
+        margin-bottom: 6px;
+    }
+    
+    .meal-content {
+        padding: 5px 6px;
+        margin-top: 6px;
+    }
+    
+    /* CALENDRIER */
+    .calendar {
+        padding: 10px;
+    }
+    
+    .calendar-header {
+        margin-bottom: 10px;
+    }
+    
+    .month-year {
+        font-size: 1.1rem;
+    }
+    
+    .nav-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 0.9rem;
+    }
+    
+    .weekdays {
+        font-size: 0.8rem;
+        margin-bottom: 5px;
+    }
+    
+    .day {
+        height: 36px;
+        font-size: 0.85rem;
+        padding-top: 3px;
+    }
+    
+    .day-weight {
+        font-size: 0.6rem;
+        min-width: 25px;
+        padding: 1px 2px;
+        margin-top: 1px;
+    }
+    
+    .day-menstruation {
+        font-size: 0.7rem;
+        top: 1px;
+        right: 1px;
+    }
+    
+    /* RECHERCHE */
+    .search-container {
+        top: 8px;
+        width: calc(100% - 16px);
+        left: 8px;
+        transform: none;
+    }
+    
+    .search-box {
+        border-radius: 20px;
+    }
+    
+    #search-input {
+        padding: 10px 12px;
+        font-size: 14px;
+    }
+    
+    .search-btn {
+        width: 45px;
+        font-size: 16px;
+    }
+    
+    .search-results {
+        top: 55px;
+        left: 8px;
+        width: calc(100% - 16px);
+        transform: none;
+        max-height: 70vh;
+    }
+    
+    .results-header {
+        padding: 10px 12px;
+    }
+    
+    .results-header h3 {
+        font-size: 16px;
+    }
+    
+    .results-list {
+        padding: 12px;
+        max-height: calc(70vh - 50px);
+    }
+    
+    .result-item {
+        padding: 8px;
+        margin-bottom: 10px;
+    }
+    
+    .result-date {
+        font-size: 0.95rem;
+    }
+    
+    .result-snippet {
+        font-size: 0.85rem;
+    }
+    
+    /* BOUTONS FLOTTANTS */
+    .floating-buttons {
+        right: 8px;
+        bottom: 8px;
+    }
+    
+    .floating-btn {
+        width: 38px;
+        height: 38px;
+        font-size: 16px;
+    }
+    
+    /* STATS */
+    .stats {
+        font-size: 0.75rem;
+        padding: 8px;
+        margin-top: 10px;
+    }
+    
+    /* MESUREMENTS */
+    .measurement-table {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 5px;
+    }
+    
+    .measurement-item {
+        padding: 6px;
+    }
+    
+    .measurement-label {
+        font-size: 0.75rem;
+    }
+    
+    .measurement-value {
+        font-size: 0.9rem;
+    }
+    
+    /* EMOJIS ET ICÔNES */
+    .menstruation-item {
+        font-size: 0.75rem;
+        padding: 1px 4px;
+        margin-right: 3px;
+        margin-bottom: 3px;
+    }
+    
+    .spiritual-item {
+        font-size: 0.8rem;
+        margin-bottom: 2px;
+    }
+    
+    .aureveil-item {
+        font-size: 0.78rem !important;
+        line-height: 1.2 !important;
+        margin-bottom: 2px !important;
+    }
+    
+    /* GESTION TEXTE LONG */
+    .entry-value,
+    .compact-value,
+    .meal-content-value,
+    .travail-content-item .compact-value {
+        white-space: normal !important;
+        word-break: break-word !important;
+        overflow-wrap: break-word !important;
+        line-height: 1.3 !important;
+        max-width: 100%;
+        overflow: hidden;
+    }
+    
+    /* FORCER LE RETOUR À LA LIGNE */
+    .entry-label, .entry-value,
+    .compact-label, .compact-value,
+    .meal-title, .meal-content-value,
+    .section-title, .result-date {
+        word-wrap: break-word;
+        word-break: break-word;
+        hyphens: auto;
+    }
+    
+    /* CACHER ÉLÉMENTS NON ESSENTIELS */
+    .time-value {
+        font-size: 0.82rem !important;
+    }
+    
+    .stars-container {
+        transform: scale(0.9);
+    }
+    
+    .star {
+        font-size: 1rem;
+    }
+    
+    /* OPTIMISATION POUR PAYSAGE */
+    @media (max-height: 500px) and (orientation: landscape) {
+        .journal-section {
+            max-height: 65vh;
+            overflow-y: auto;
         }
+        
+        .search-results {
+            max-height: 50vh;
+        }
+        
+        .results-list {
+            max-height: calc(50vh - 50px);
+        }
+    }
+}
         
         .error-message {
             background-color: #f8d7da;
@@ -1396,10 +2037,10 @@
         .fa-spa { color: #9c27b0; }
         .fa-hands-praying { color: #673ab7; }
         .fa-book-bible { color: #795548; }
-        .fa-brain { color: #2196f3; }
+        .fa-brain { color: #f44336; }
         .fa-flag { color: #4caf50; }
         .fa-church { color: #8a6d3b; }
-        .fa-graduation-cap { color: #ff5722; }
+        .fa-graduation-cap { color: #f44336; } /* CHANGÉ EN ROUGE */
         .fa-hands { color: #ffc107; }
         .fa-coffee { color: #795548; }
         .fa-utensil-spoon { color: #f44336; }
@@ -1449,9 +2090,442 @@
         .fa-clock-o { color: #795548; }
         .fa-list-ol { color: #8a6d3b; }
         .fa-user-clock { color: #00bcd4; }
+
+/* Boutons flottants */
+.floating-buttons {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.floating-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #8a6d3b 0%, #d4a762 100%);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.floating-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    background: linear-gradient(135deg, #d4a762 0%, #8a6d3b 100%);
+}
+
+.floating-btn.tooltip {
+    position: relative;
+}
+
+.floating-btn.tooltip::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    right: 60px;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+    z-index: 1001;
+    pointer-events: none;
+}
+
+.floating-btn.tooltip:hover::after {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Responsive pour les mobiles */
+@media (max-width: 768px) {
+    .floating-buttons {
+        right: 15px;
+        bottom: 15px;
+    }
+    
+    .floating-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 20px;
+    }
+    
+    .floating-btn.tooltip::after {
+        font-size: 12px;
+        padding: 6px 10px;
+        right: 55px;
+    }
+}
+/* Barre de recherche */
+.search-container {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1001;
+    width: 90%;
+    max-width: 600px;
+    transition: all 0.3s ease;
+}
+
+.search-box {
+    position: relative;
+    display: flex;
+    background: white;
+    border-radius: 30px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    border: 2px solid #d4a762;
+}
+
+#search-input {
+    flex: 1;
+    padding: 14px 20px;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    background: transparent;
+    color: #333;
+}
+
+.search-btn {
+    width: 60px;
+    background: linear-gradient(135deg, #8a6d3b 0%, #d4a762 100%);
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 18px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.search-btn:hover {
+    background: linear-gradient(135deg, #d4a762 0%, #8a6d3b 100%);
+}
+
+/* Suggestions */
+.suggestions-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border-radius: 0 0 10px 10px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    max-height: 300px;
+    overflow-y: auto;
+    display: none;
+    z-index: 1002;
+    border-top: 1px solid #eee;
+}
+
+.suggestion-item {
+    padding: 12px 20px;
+    cursor: pointer;
+    border-bottom: 1px solid #f5f5f5;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: background-color 0.2s;
+}
+
+.suggestion-item:hover {
+    background-color: #f9f5f0;
+}
+
+.suggestion-item i {
+    color: #8a6d3b;
+    font-size: 14px;
+}
+
+.suggestion-text {
+    flex: 1;
+    font-size: 14px;
+    color: #333;
+}
+
+.suggestion-date {
+    font-size: 12px;
+    color: #8a6d3b;
+    background: #f0e6d3;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+/* Résultats de recherche */
+.search-results {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 800px;
+    max-height: 70vh;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+    z-index: 1003;
+    display: none;
+    overflow: hidden;
+    border: 2px solid #d4a762;
+}
+
+.results-header {
+    background: linear-gradient(135deg, #8a6d3b 0%, #d4a762 100%);
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.results-header h3 {
+    margin: 0;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.close-results {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.3s;
+}
+
+.close-results:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.results-list {
+    padding: 20px;
+    max-height: calc(70vh - 60px);
+    overflow-y: auto;
+}
+
+.result-item {
+    background: #f9f5f0;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-left: 4px solid #d4a762;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.result-item:hover {
+    background: #f0e6d3;
+    transform: translateX(5px);
+}
+
+.result-date {
+    font-weight: 700;
+    color: #8a6d3b;
+    font-size: 16px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.result-snippet {
+    color: #555;
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 10px;
+}
+
+.result-highlight {
+    background-color: #ffecb3;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-weight: 600;
+    color: #8a6d3b;
+}
+
+.result-matches {
+    font-size: 12px;
+    color: #8a6d3b;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(138, 109, 59, 0.1);
+    padding: 4px 10px;
+    border-radius: 12px;
+    width: fit-content;
+}
+
+.no-results {
+    text-align: center;
+    padding: 40px;
+    color: #8a6d3b;
+}
+
+.no-results i {
+    font-size: 40px;
+    margin-bottom: 15px;
+    opacity: 0.5;
+}
+
+/* Responsive pour la recherche */
+@media (max-width: 768px) {
+    .search-container {
+        top: 15px;
+        width: 95%;
+    }
+    
+    #search-input {
+        padding: 12px 15px;
+        font-size: 15px;
+    }
+    
+    .search-btn {
+        width: 50px;
+    }
+    
+    .search-results {
+        top: 70px;
+        max-height: 80vh;
+    }
+    
+    .results-list {
+        max-height: calc(80vh - 60px);
+    }
+    
+    .result-item {
+        padding: 12px;
+    }
+}
+
+/* Ajustement pour ne pas cacher le contenu */
+.container {
+    margin-top: 80px;
+}
+
+@media (max-width: 768px) {
+    .container {
+        margin-top: 70px;
+    }
+}
+/* RESPONSIVE POUR PHOTOS 7x7cm */
+@media (max-width: 1200px) {
+    .photo-preview-item {
+        width: 6cm;
+        height: 6cm;
+    }
+}
+
+@media (max-width: 992px) {
+    .photos-preview-container {
+        gap: 15px;
+        padding: 15px;
+    }
+    
+    .photo-preview-item {
+        width: 5.5cm;
+        height: 5.5cm;
+    }
+}
+
+@media (max-width: 768px) {
+    .photos-preview-container {
+        gap: 12px;
+        padding: 12px;
+        margin: 15px 0;
+    }
+    
+    .photo-preview-item {
+        width: 5cm;
+        height: 5cm;
+    }
+    
+    .photo-thumbnail-link {
+        border-width: 3px;
+        border-radius: 10px;
+    }
+    
+    .photo-overlay {
+        padding: 8px;
+        font-size: 0.8rem;
+    }
+    
+    .photo-info {
+        font-size: 0.8rem;
+        margin-top: 8px;
+    }
+}
+
+@media (max-width: 576px) {
+    .photos-preview-container {
+        gap: 10px;
+        padding: 10px;
+    }
+    
+    .photo-preview-item {
+        width: 4.5cm;
+        height: 4.5cm;
+    }
+}
+
+@media (max-width: 480px) {
+    .photo-preview-item {
+        width: 4cm;
+        height: 4cm;
+    }
+    
+    .photos-preview-container {
+        gap: 8px;
+        padding: 10px;
+    }
+}
     </style>
 </head>
 <body>
+    <!-- Barre de recherche flottante -->
+    <div class="search-container">
+        <div class="search-box">
+            <input type="text" id="search-input" placeholder="Rechercher dans le journal...">
+            <button class="search-btn" id="search-button">
+                <i class="fas fa-search"></i>
+            </button>
+            <div class="suggestions-dropdown" id="suggestions-dropdown"></div>
+        </div>
+        <div class="search-results" id="search-results">
+            <div class="results-header">
+                <h3><i class="fas fa-search"></i> Résultats de recherche</h3>
+                <button class="close-results" id="close-results"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="results-list" id="results-list"></div>
+        </div>
+    </div>
     <div class="container">
         <header>
             <h1><i class="fas fa-book-open"></i> Mon Journal Intime</h1>
@@ -1515,7 +2589,10 @@
         
         // Mise à jour avec le nouveau lien
         const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTMgDO2dFTZVN5sLUkyiT69SnPmqVcD5AQNAvZp3jp6h_qyQ8FZw3CRQ_eQ8xWJE-ySDxsXPy-t0HD4/pub?output=csv";
-        
+                // Fonction pour supprimer les accents
+        function removeAccents(str) {
+            return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        }
         // Mapping des icônes pour les sections
         const sectionIcons = {
             'SOMMEIL': 'fa-moon',
@@ -1541,7 +2618,153 @@
             'POIDS & MENSURATION': 'fa-weight-scale',
             'BILAN PERSONNEL DE LA JOURNEE': 'fa-chart-line'
         };
+                // Fonction pour extraire les URLs de photos
+        function extractPhotoUrls(text) {
+            if (!text || typeof text !== 'string') return [];
+            
+            // Nettoyer le texte
+            let cleanText = text.trim();
+            cleanText = cleanText.replace(/["']/g, '');
+            
+            // Expressions régulières pour trouver des URLs
+            const urlPatterns = [
+                /(https?:\/\/[^\s<>"]+\.(?:jpg|jpeg|png|gif|webp|bmp|JPG|JPEG|PNG|GIF|WEBP|BMP))/gi,
+                /(https?:\/\/drive\.google\.com\/[^\s<>"]+)/gi,
+                /(https?:\/\/photos\.app\.goo\.gl\/[^\s<>"]+)/gi,
+                /(https?:\/\/[^\s<>"]+\.google\.com\/[^\s<>"]+)/gi
+            ];
+            
+            const urls = new Set();
+            
+            // Chercher avec chaque pattern
+            urlPatterns.forEach(pattern => {
+                const matches = cleanText.match(pattern);
+                if (matches) {
+                    matches.forEach(url => {
+                        const cleanUrl = url.replace(/[,\s;]+$/, '').trim();
+                        if (cleanUrl.length > 10) {
+                            urls.add(cleanUrl);
+                        }
+                    });
+                }
+            });
+            
+            // Chercher les URLs entre parenthèses ou crochets
+            const bracketPattern = /\[(https?:\/\/[^\]]+)\]/g;
+            let bracketMatch;
+            while ((bracketMatch = bracketPattern.exec(cleanText)) !== null) {
+                urls.add(bracketMatch[1].trim());
+            }
+            
+            return Array.from(urls);
+        }
         
+        // Fonction pour générer une vignette Google Drive
+        function generateDriveThumbnail(url) {
+            if (!url || typeof url !== 'string') return '';
+            
+            if (url.includes('drive.google.com')) {
+                // Fichier Google Drive
+                if (url.includes('/file/d/')) {
+                    const fileId = url.split('/file/d/')[1].split('/')[0];
+                    return `https://drive.google.com/thumbnail?sz=w400&id=${fileId}`;
+                }
+                // Lien direct avec id=
+                else if (url.includes('id=')) {
+                    const fileId = url.split('id=')[1].split('&')[0];
+                    return `https://drive.google.com/thumbnail?sz=w400&id=${fileId}`;
+                }
+                // Lien /open?id=
+                else if (url.includes('/open?id=')) {
+                    const fileId = url.split('/open?id=')[1];
+                    return `https://drive.google.com/thumbnail?sz=w400&id=${fileId}`;
+                }
+            }
+            
+            // Pour les autres URLs, utiliser l'URL directe
+            return url;
+        }
+        
+        // Fonction pour déterminer le type de fichier
+        function getFileType(url) {
+            if (!url) return 'unknown';
+            
+            const lowerUrl = url.toLowerCase();
+            
+            if (lowerUrl.includes('drive.google.com')) {
+                if (lowerUrl.includes('/folders/')) {
+                    return 'folder';
+                }
+                return 'drive';
+            }
+            
+            if (lowerUrl.includes('.jpg') || lowerUrl.includes('.jpeg')) return 'jpg';
+            if (lowerUrl.includes('.png')) return 'png';
+            if (lowerUrl.includes('.gif')) return 'gif';
+            if (lowerUrl.includes('.webp')) return 'webp';
+            if (lowerUrl.includes('.bmp')) return 'bmp';
+            
+            return 'unknown';
+        }
+        
+        // Fonction pour générer un aperçu de photo
+        function generatePhotoPreview(photoUrls) {
+            if (!photoUrls || photoUrls.length === 0) return '';
+            
+            let html = '<div class="photos-preview-container">';
+            
+            photoUrls.forEach((url, index) => {
+                const cleanUrl = url.trim();
+                const thumbnailUrl = generateDriveThumbnail(cleanUrl);
+                const fileType = getFileType(cleanUrl);
+                const fileName = cleanUrl.split('/').pop() || `Photo ${index + 1}`;
+                
+                // Pour les dossiers Google Drive
+                if (fileType === 'folder') {
+                    html += `
+                        <div class="photo-preview-item">
+                            <a href="${cleanUrl}" target="_blank" class="photo-thumbnail-link" title="Ouvrir le dossier Google Drive">
+                                <img src="https://img.icons8.com/color/96/000000/google-drive-folder.png" 
+                                     alt="Dossier Google Drive" 
+                                     class="photo-thumbnail"
+                                     onerror="this.onerror=null; this.src='https://via.placeholder.com/150/4CAF50/ffffff?text=📁'">
+                                <div class="photo-overlay">📁 Dossier Drive</div>
+                            </a>
+                            <div class="photo-info">Dossier ${index + 1}</div>
+                        </div>
+                    `;
+                }
+                // Pour les fichiers images
+                else {
+                    html += `
+                        <div class="photo-preview-item">
+                            <a href="${cleanUrl}" target="_blank" class="photo-thumbnail-link" 
+                               data-index="${index}" 
+                               data-url="${cleanUrl}"
+                               data-thumbnail="${thumbnailUrl}"
+                               title="${fileName}">
+                                <img src="${thumbnailUrl}" 
+                                     alt="Photo ${index + 1}" 
+                                     class="photo-thumbnail"
+                                     onerror="this.onerror=null; this.src='https://via.placeholder.com/150/cccccc/666666?text=Image'">
+                                <div class="photo-overlay">📸 Photo ${index + 1}</div>
+                            </a>
+                            <div class="photo-info">${fileName.substring(0, 20)}${fileName.length > 20 ? '...' : ''}</div>
+                        </div>
+                    `;
+                }
+            });
+            
+            html += '</div>';
+            
+            // Ajouter un message d'information
+            html += `<div style="font-size:0.85rem; color:#666; margin-top:10px; display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-info-circle"></i>
+                        <span>${photoUrls.length} photo${photoUrls.length > 1 ? 's' : ''} - Cliquez pour agrandir</span>
+                    </div>`;
+            
+            return html;
+        }
         // Normalisation des noms de colonnes pour regrouper les données
         const columnGroups = {
             'au_reveil': /^au\s*reveil\s*\[\d+\]/i,
@@ -1833,10 +3056,13 @@
                     }
                 }
                 
-                console.log(`Données chargées: ${journalData.length} entrées`);
+                                console.log(`Données chargées: ${journalData.length} entrées`);
                 
                 updateStats();
                 initCalendar();
+                
+                // AJOUTER CETTE LIGNE ICI :
+                buildSearchIndex();  // Construire l'index de recherche
                 
                 if (journalData.length > 0) {
                     const normalizedCurrentDate = normalizeDate(currentDate);
@@ -1854,6 +3080,7 @@
                 showLoading(false);
             }
         }
+
         
         // Méthode de secours pour charger les données
         async function tryFallbackMethod() {
@@ -2103,7 +3330,18 @@
             
             if (entry && entry.rawData) {
                 console.log("Données disponibles pour cette date:", entry.rawData);
-                
+                // Afficher toutes les clés disponibles pour déboguer
+console.log("=== DÉBOGAGE - Toutes les clés disponibles ===");
+if (entry && entry.rawData) {
+    Object.keys(entry.rawData).forEach(key => {
+        const value = entry.rawData[key];
+        if (value && value.trim() !== '') {
+            console.log(`Clé: "${key}"`);
+            console.log(`Valeur: "${value.substring(0, 100)}${value.length > 100 ? '...' : ''}"`);
+            console.log("---");
+        }
+    });
+}
                 const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
                 const formattedDate = entry.date.toLocaleDateString('fr-FR', options);
                 
@@ -2347,10 +3585,9 @@
                     // Champs spirituels individuels avec les nouveaux champs
                     const spiritualFields = [
                         {key: "Texte medité", label: "Texte médité", icon: "fa-book-bible"},
-                        {key: "Ce que j'ai retenu aujourd'hui dans la méditation", label: "Retenu de la méditation", icon: "fa-brain"},
+                        {key: "Ce que j'ai retenu aujourd'hui dans la méditation", label: "Retenu de la méditation", icon: "fa-graduation-cap"},
                         {key: "Résolution du jour/décision", label: "Résolution du jour", icon: "fa-flag"},
                         {key: "Fampianarana biblique du jour", label: "Fampianarana biblique", icon: "fa-church"},
-                        {key: "Leçon spirituelle tirée du jour", label: "Leçon spirituelle", icon: "fa-graduation-cap"},
                         {key: "Partage spirituel", label: "Partage spirituel", icon: "fa-comments"},
                         {key: "Sujet de Louange,reconnaissance", label: "Sujet de louange", icon: "fa-hands"}
                     ];
@@ -2609,7 +3846,7 @@
                         {key: "Collation", label: "Collation", icon: "fa-apple-alt"},
                         {key: "Repas extra", label: "Repas extra", icon: "fa-plus-circle"},
                         {key: "Details Repas extra", label: "Détails repas extra", icon: "fa-info-circle"},
-                        {key: "Menu", label: "Menu", icon: "fa-clipboard-list"},
+                        {key: "Détails cuisine", label: "Détails cuisine", icon: "fa-clipboard-list"},
                         {key: "Recette à retenir", label: "Recette à retenir", icon: "fa-bookmark"},
                         {key: "Durée cuisine", label: "Durée cuisine", icon: "fa-clock"}
                     ];
@@ -2805,15 +4042,6 @@
                         entryHTML += `</div>`;
                     }
                     
-                    // Obs sur lecture
-                    const obsLectureKey = normalizeKey("Obs sur lecture");
-                    if (entry.rawData[obsLectureKey]) {
-                        entryHTML += `<div class="entry-row">
-                            <div class="entry-label"><i class="fas fa-sticky-note"></i> Observations</div>
-                            <div class="entry-value">${formatValue(entry.rawData[obsLectureKey])}</div>
-                        </div>`;
-                    }
-                    
                     entryHTML += `</div>`;
                 }
                 
@@ -2885,6 +4113,36 @@
                         </div>`;
                     }
                     
+                    // CORRECTION : Détails sur distraction - cherche plusieurs variantes possibles
+let detailsDistractionValue = '';
+const distractionDetailKeys = [
+    "Obs sur lecture",  // ESSAYER sans accent
+    "Obs sur lecture",  // Avec accent (version originale)
+    "Détails distraction",
+    "Details distraction", 
+    "Details sur distraction",
+    "Détails sur distraction",
+    "Observation sur lecture",
+    "Observation distraction"
+];
+
+// Essayer chaque clé possible
+for (const keyName of distractionDetailKeys) {
+    const key = normalizeKey(keyName);
+    if (entry.rawData[key] && entry.rawData[key].trim() !== '') {
+        detailsDistractionValue = entry.rawData[key];
+        console.log(`Trouvé détails distraction avec clé: ${keyName} = ${detailsDistractionValue.substring(0, 50)}...`);
+        break; // S'arrêter à la première valeur trouvée
+    }
+}
+
+if (detailsDistractionValue) {
+    entryHTML += `<div class="entry-row">
+        <div class="entry-label"><i class="fas fa-info-circle"></i> Détails sur distraction</div>
+        <div class="entry-value">${formatValue(detailsDistractionValue)}</div>
+    </div>`;
+}
+                    
                     entryHTML += `</div>`;
                 }
                 
@@ -2922,43 +4180,77 @@
                 }
                 
                 // SECTION: ACTIVITE MENAGERE
-                if (entry.groupedData.activite_menagere && entry.groupedData.activite_menagere.length > 0) {
+                // RECHERCHE SPÉCIFIQUE POUR "Détails sur activités ménagère"
+                const detailsMenagereKey1 = normalizeKey("Leçon spirituelle tirée du jour");
+                const detailsMenagereKey2 = normalizeKey("Details activites menageres");
+                const detailsMenagereKey3 = normalizeKey("Détails sur activités ménagère");
+                
+                // Chercher d'abord le champ spécifique
+                let detailsMenagereValue = '';
+                let detailsMenagereKeyUsed = '';
+                
+                if (entry.rawData[detailsMenagereKey3]) {
+                    detailsMenagereValue = entry.rawData[detailsMenagereKey3];
+                    detailsMenagereKeyUsed = detailsMenagereKey3;
+                } else if (entry.rawData[detailsMenagereKey2]) {
+                    detailsMenagereValue = entry.rawData[detailsMenagereKey2];
+                    detailsMenagereKeyUsed = detailsMenagereKey2;
+                } else if (entry.rawData[detailsMenagereKey1]) {
+                    detailsMenagereValue = entry.rawData[detailsMenagereKey1];
+                    detailsMenagereKeyUsed = detailsMenagereKey1;
+                }
+                
+                const hasMenagereData = (entry.groupedData.activite_menagere && entry.groupedData.activite_menagere.length > 0) || detailsMenagereValue;
+                
+                if (hasMenagereData) {
                     entryHTML += `<div class="section-menagere">`;
                     entryHTML += `<div class="section-title"><i class="fas fa-broom"></i> ACTIVITE MENAGERE</div>`;
                     entryHTML += `<div class="section-decoration decoration-menagere"><i class="fas fa-broom"></i></div>`;
                     
-                    entryHTML += `<div class="entry-row">
-                        <div class="entry-label"><i class="fas fa-home"></i> Tâches ménagères</div>
-                        <div class="entry-value">`;
-                    
-                    const menagereLabels = {
-                        'Chambre': '🛏️ Chambre',
-                        'Salon': '🛋️ Salon',
-                        'Cuisine': '🍳 Cuisine',
-                        'Salle de bain': '🚿 Salle de bain',
-                        'Toilette': '🚽 Toilette'
-                    };
-                    
-                    entry.groupedData.activite_menagere.forEach(item => {
-                        if (item.value && item.value.trim() !== '') {
-                            let room = item.header.replace('Activité ménagère: ', '');
-                            
-                            for (const [key, emojiLabel] of Object.entries(menagereLabels)) {
-                                if (room.includes(key)) {
-                                    room = emojiLabel;
-                                    break;
+                    // Tâches ménagères
+                    if (entry.groupedData.activite_menagere && entry.groupedData.activite_menagere.length > 0) {
+                        entryHTML += `<div class="entry-row">
+                            <div class="entry-label"><i class="fas fa-home"></i> Tâches ménagères</div>
+                            <div class="entry-value">`;
+                        
+                        const menagereLabels = {
+                            'Chambre': '🛏️ Chambre',
+                            'Salon': '🛋️ Salon',
+                            'Cuisine': '🍳 Cuisine',
+                            'Salle de bain': '🚿 Salle de bain',
+                            'Toilette': '🚽 Toilette'
+                        };
+                        
+                        entry.groupedData.activite_menagere.forEach(item => {
+                            if (item.value && item.value.trim() !== '') {
+                                let room = item.header.replace('Activité ménagère: ', '');
+                                
+                                for (const [key, emojiLabel] of Object.entries(menagereLabels)) {
+                                    if (room.includes(key)) {
+                                        room = emojiLabel;
+                                        break;
+                                    }
                                 }
+                                
+                                const timeDisplay = extractMenagereTime(item.value);
+                                const valueWithoutTime = item.value.replace(/(\d+)\s*(min|minutes|m|h|heures|hr|hour)/i, '').trim();
+                                
+                                entryHTML += `<div class="menagere-label">${room} ${timeDisplay}</div>`;
+                                entryHTML += `<div class="menagere-value">${valueWithoutTime}</div><br>`;
                             }
-                            
-                            const timeDisplay = extractMenagereTime(item.value);
-                            const valueWithoutTime = item.value.replace(/(\d+)\s*(min|minutes|m|h|heures|hr|hour)/i, '').trim();
-                            
-                            entryHTML += `<div class="menagere-label">${room} ${timeDisplay}</div>`;
-                            entryHTML += `<div class="menagere-value">${valueWithoutTime}</div><br>`;
-                        }
-                    });
+                        });
+                        
+                        entryHTML += `</div></div>`;
+                    }
                     
-                    entryHTML += `</div></div>`;
+                    // Détails sur activités ménagère - CORRECTION ICI
+                    if (detailsMenagereValue) {
+                        entryHTML += `<div class="entry-row">
+                            <div class="entry-label"><i class="fas fa-info-circle"></i> Détails sur activités ménagère</div>
+                            <div class="entry-value">${formatValue(detailsMenagereValue)}</div>
+                        </div>`;
+                    }
+                    
                     entryHTML += `</div>`;
                 }
                 
@@ -3030,34 +4322,65 @@
                     entryHTML += `</div>`;
                 }
                 
-                // SECTION: FINANCE
-                const depensesKey = normalizeKey("Depenses fixes");
-                const achatKey = normalizeKey("Achat du jour");
+                // SECTION: FINANCE - CORRECTION ICI
+                const depensesFixesKey = normalizeKey("Depenses fixes");
+                const depensesNourritureKey = normalizeKey("Dépenses en nourriture");
+                const achatDuJourKey = normalizeKey("Achat du jour");
+                const achatsAutresKey = normalizeKey("Achats autres");
                 const autresDepensesKey = normalizeKey("Autres depenses non achat du jour");
                 
-                if (entry.rawData[depensesKey] || entry.rawData[achatKey] || entry.rawData[autresDepensesKey]) {
+                // Chercher les valeurs dans l'ordre correct
+                let depensesNourritureValue = '';
+                let achatsAutresValue = '';
+                let autresDepensesValue = '';
+                
+                // Chercher d'abord Dépenses en nourriture
+                if (entry.rawData[depensesNourritureKey]) {
+                    depensesNourritureValue = entry.rawData[depensesNourritureKey];
+                } else if (entry.rawData[depensesFixesKey]) {
+                    // Fallback sur Depenses fixes
+                    depensesNourritureValue = entry.rawData[depensesFixesKey];
+                }
+                
+                // Chercher Achats autres
+                if (entry.rawData[achatsAutresKey]) {
+                    achatsAutresValue = entry.rawData[achatsAutresKey];
+                } else if (entry.rawData[achatDuJourKey]) {
+                    // Fallback sur Achat du jour
+                    achatsAutresValue = entry.rawData[achatDuJourKey];
+                }
+                
+                // Chercher Autres dépenses
+                if (entry.rawData[autresDepensesKey]) {
+                    autresDepensesValue = entry.rawData[autresDepensesKey];
+                }
+                
+                if (depensesNourritureValue || achatsAutresValue || autresDepensesValue) {
                     entryHTML += `<div class="section-finance">`;
                     entryHTML += `<div class="section-title"><i class="fas fa-money-bill-wave"></i> FINANCE</div>`;
                     entryHTML += `<div class="section-decoration decoration-finance"><i class="fas fa-money-bill-wave"></i></div>`;
                     
-                    if (entry.rawData[depensesKey]) {
+                    // Dépenses en nourriture
+                    if (depensesNourritureValue) {
                         entryHTML += `<div class="entry-row">
-                            <div class="entry-label"><i class="fas fa-home"></i> Dépenses fixes</div>
-                            <div class="entry-value">${formatValue(entry.rawData[depensesKey])}</div>
+                            <div class="entry-label"><i class="fas fa-utensils"></i> Dépenses en nourriture</div>
+                            <div class="entry-value">${formatValue(depensesNourritureValue)}</div>
                         </div>`;
                     }
                     
-                    if (entry.rawData[achatKey]) {
+                    // Achats autres
+                    if (achatsAutresValue) {
                         entryHTML += `<div class="entry-row">
-                            <div class="entry-label"><i class="fas fa-shopping-cart"></i> Achat du jour</div>
-                            <div class="entry-value">${formatValue(entry.rawData[achatKey])}</div>
+                            <div class="entry-label"><i class="fas fa-shopping-cart"></i> Achats autres</div>
+                            <div class="entry-value">${formatValue(achatsAutresValue)}</div>
                         </div>`;
                     }
                     
-                    if (entry.rawData[autresDepensesKey]) {
+                    // Autres dépenses
+                    if (autresDepensesValue) {
                         entryHTML += `<div class="entry-row">
                             <div class="entry-label"><i class="fas fa-receipt"></i> Autres dépenses</div>
-                            <div class="entry-value">${formatValue(entry.rawData[autresDepensesKey])}</div>
+                            <div class="entry-value">${formatValue(autresDepensesValue)}</div>
                         </div>`;
                     }
                     
@@ -3248,9 +4571,11 @@
                 const detailsSoinKey = normalizeKey("Details soin du jour");
                 const maladieKey = normalizeKey("Maladie");
                 const suiviSanteKey = normalizeKey("Suivi santé");
+                const santeKey = normalizeKey("Déroulement journée");
                 
                 if (entry.rawData[lavageKey] || entry.rawData[extraKey] || entry.rawData[bijouKey] || 
-                    entry.rawData[detailsSoinKey] || entry.rawData[maladieKey] || entry.rawData[suiviSanteKey]) {
+                    entry.rawData[detailsSoinKey] || entry.rawData[maladieKey] || entry.rawData[suiviSanteKey] ||
+                    entry.rawData[santeKey]) {
                     entryHTML += `<div class="section-sante">`;
                     entryHTML += `<div class="section-title"><i class="fas fa-heartbeat"></i> SANTE, SOIN, HYGIENE</div>`;
                     entryHTML += `<div class="section-decoration decoration-sante"><i class="fas fa-heartbeat"></i></div>`;
@@ -3294,6 +4619,14 @@
                         entryHTML += `<div class="entry-row">
                             <div class="entry-label"><i class="fas fa-heartbeat"></i> Suivi santé</div>
                             <div class="entry-value">${formatValue(entry.rawData[suiviSanteKey])}</div>
+                        </div>`;
+                    }
+                    
+                    // Santé (anciennement Déroulement journée)
+                    if (entry.rawData[santeKey]) {
+                        entryHTML += `<div class="entry-row">
+                            <div class="entry-label"><i class="fas fa-heartbeat"></i> Santé</div>
+                            <div class="entry-value">${formatValue(entry.rawData[santeKey])}</div>
                         </div>`;
                     }
                     
@@ -3356,11 +4689,10 @@
                 const fatigueKey = normalizeKey("Fatigue");
                 const photosKey = normalizeKey("Photos du jour");
                 const rohyKey = normalizeKey("rohy fiche");
-                const deroulementJourneeKey = normalizeKey("Déroulement journée");
                 const partageJourKey = normalizeKey("Partage du jour");
                 
                 if (entry.rawData[stressKey] || entry.rawData[difficultesKey] || entry.rawData[leconsKey] || 
-                    entry.rawData[deroulementJourneeKey] || entry.rawData[partageJourKey] || entry.rawData[rohyKey] || 
+                    entry.rawData[partageJourKey] || entry.rawData[rohyKey] || 
                     entry.rawData[photosKey]) {
                     entryHTML += `<div class="section-bilan">`;
                     entryHTML += `<div class="section-title"><i class="fas fa-chart-line"></i> BILAN PERSONNEL DE LA JOURNEE</div>`;
@@ -3373,7 +4705,6 @@
                         {key: "Leçons du jour", label: "Leçons du jour", icon: "fa-graduation-cap"},
                         {key: "Inhabituel", label: "Inhabituel", icon: "fa-star"},
                         {key: "Autres chose", label: "Autres choses", icon: "fa-ellipsis-h"},
-                        {key: "Déroulement journée", label: "Déroulement journée", icon: "fa-list-ol"},
                         {key: "Partage du jour", label: "Partage du jour", icon: "fa-comments"},
                         {key: "Ce que j'ai reçu en cadeau aujourd'hui", label: "Cadeau reçu", icon: "fa-gift"},
                         {key: "Etat mental et emotionnel", label: "État mental/émotionnel", icon: "fa-smile"},
@@ -3382,7 +4713,7 @@
                         {key: "rohy fiche", label: "Lien fiche", icon: "fa-link"}
                     ];
                     
-                    bilanFields.forEach(field => {
+                                        bilanFields.forEach(field => {
                         const fieldKey = normalizeKey(field.key);
                         if (entry.rawData[fieldKey]) {
                             if (field.key === "Fatigue") {
@@ -3391,6 +4722,35 @@
                                     <div class="entry-label"><i class="fas ${field.icon}"></i> ${field.label}</div>
                                     <div class="entry-value">${fatigueStars || entry.rawData[fieldKey]}</div>
                                 </div>`;
+                            } else if (field.key === "rohy fiche") {
+                                // Rendre les liens cliquables
+                                const urls = entry.rawData[fieldKey].match(/https?:\/\/[^\s]+/g) || [];
+                                let formattedValue = formatValue(entry.rawData[fieldKey]);
+                                urls.forEach(url => {
+                                    formattedValue = formattedValue.replace(url, `<a href="${url}" target="_blank">${url}</a>`);
+                                });
+                                entryHTML += `<div class="entry-row">
+                                    <div class="entry-label"><i class="fas ${field.icon}"></i> ${field.label}</div>
+                                    <div class="entry-value">${formattedValue}</div>
+                                </div>`;
+                            } else if (field.key === "Photos du jour") {
+                                // Photos du jour avec aperçu
+                                const photosContent = entry.rawData[fieldKey];
+                                const photoUrls = extractPhotoUrls(photosContent);
+                                
+                                entryHTML += `<div class="entry-row">
+                                    <div class="entry-label"><i class="fas ${field.icon}"></i> ${field.label}</div>
+                                    <div class="entry-value">`;
+                                
+                                if (photoUrls.length > 0) {
+                                    // Afficher l'aperçu des photos
+                                    entryHTML += generatePhotoPreview(photoUrls);
+                                } else {
+                                    // Fallback: afficher le texte original
+                                    entryHTML += formatValue(photosContent);
+                                }
+                                
+                                entryHTML += `</div></div>`;
                             } else {
                                 entryHTML += `<div class="entry-row">
                                     <div class="entry-label"><i class="fas ${field.icon}"></i> ${field.label}</div>
@@ -3637,6 +4997,723 @@
         
         // Charger les données au démarrage
         document.addEventListener('DOMContentLoaded', loadJournalData);
+
+        // Galerie photo globale
+        let currentPhotos = [];
+        let currentPhotoIndex = 0;
+        
+        // Initialiser la galerie
+        function initPhotoGallery() {
+            const photoModal = document.getElementById('photoModal');
+            const closeModal = photoModal.querySelector('.close-modal');
+            const prevBtn = document.getElementById('prevPhotoBtn');
+            const nextBtn = document.getElementById('nextPhotoBtn');
+            
+            // Fermer le modal
+            closeModal.addEventListener('click', () => {
+                photoModal.style.display = 'none';
+            });
+            
+            // Fermer en cliquant à l'extérieur
+            photoModal.addEventListener('click', (e) => {
+                if (e.target === photoModal) {
+                    photoModal.style.display = 'none';
+                }
+            });
+            
+            // Fermer avec Escape
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && photoModal.style.display === 'flex') {
+                    photoModal.style.display = 'none';
+                }
+            });
+            
+            // Navigation
+            prevBtn.addEventListener('click', showPrevPhoto);
+            nextBtn.addEventListener('click', showNextPhoto);
+            
+            // Navigation clavier
+            document.addEventListener('keydown', (e) => {
+                if (photoModal.style.display === 'flex') {
+                    if (e.key === 'ArrowLeft') showPrevPhoto();
+                    if (e.key === 'ArrowRight') showNextPhoto();
+                }
+            });
+            
+            // Déléguation d'événements pour les aperçus photo
+            document.addEventListener('click', function(e) {
+                const thumbnailLink = e.target.closest('.photo-thumbnail-link');
+                if (thumbnailLink && thumbnailLink.dataset.url) {
+                    e.preventDefault();
+                    
+                    // Récupérer toutes les photos de la section actuelle
+                    const section = thumbnailLink.closest('.section-bilan, [class*="section-"]');
+                    const allLinks = section ? 
+                        Array.from(section.querySelectorAll('.photo-thumbnail-link[data-url]')) : 
+                        Array.from(document.querySelectorAll('.photo-thumbnail-link[data-url]'));
+                    
+                    currentPhotos = allLinks.map(link => ({
+                        url: link.dataset.url,
+                        thumbnail: link.dataset.thumbnail,
+                        title: link.title || 'Photo'
+                    }));
+                    
+                    const clickedIndex = parseInt(thumbnailLink.dataset.index) || 0;
+                    openPhotoGallery(clickedIndex);
+                }
+            });
+        }
+        
+        // Ouvrir la galerie
+        function openPhotoGallery(index) {
+            currentPhotoIndex = index;
+            const photoModal = document.getElementById('photoModal');
+            const modalPhoto = document.getElementById('modalPhoto');
+            const modalCaption = document.getElementById('modalCaption');
+            const galleryCounter = document.getElementById('galleryCounter');
+            
+            if (currentPhotos.length === 0) return;
+            
+            const currentPhoto = currentPhotos[currentPhotoIndex];
+            modalPhoto.src = currentPhoto.url;
+            modalPhoto.alt = currentPhoto.title;
+            modalCaption.textContent = currentPhoto.title;
+            galleryCounter.textContent = `${currentPhotoIndex + 1} / ${currentPhotos.length}`;
+            
+            photoModal.style.display = 'flex';
+            
+            // Mettre à jour les boutons de navigation
+            updateGalleryButtons();
+        }
+        
+        // Photo précédente
+        function showPrevPhoto() {
+            if (currentPhotos.length === 0) return;
+            currentPhotoIndex = (currentPhotoIndex - 1 + currentPhotos.length) % currentPhotos.length;
+            openPhotoGallery(currentPhotoIndex);
+        }
+        
+        // Photo suivante
+        function showNextPhoto() {
+            if (currentPhotos.length === 0) return;
+            currentPhotoIndex = (currentPhotoIndex + 1) % currentPhotos.length;
+            openPhotoGallery(currentPhotoIndex);
+        }
+        
+        // Mettre à jour les boutons de la galerie
+        function updateGalleryButtons() {
+            const prevBtn = document.getElementById('prevPhotoBtn');
+            const nextBtn = document.getElementById('nextPhotoBtn');
+            
+            if (currentPhotos.length <= 1) {
+                prevBtn.style.display = 'none';
+                nextBtn.style.display = 'none';
+            } else {
+                prevBtn.style.display = 'flex';
+                nextBtn.style.display = 'flex';
+            }
+        }
+        
+       
+        // Gestion des boutons flottants
+        document.addEventListener('DOMContentLoaded', function() {
+            // Bouton pour le formulaire (nouvelle entrée)
+            const formBtn = document.getElementById('form-btn');
+            if (formBtn) {
+                formBtn.addEventListener('click', function() {
+                    window.open('https://docs.google.com/forms/d/e/1FAIpQLScko6foWXmpKjp1FBKlKQ6kdXheKr22YZZFSlJrb2IsuiLa6Q/viewform', '_blank');
+                });
+            }
+            
+            // Bouton pour le Google Sheet source
+            const sheetBtn = document.getElementById('sheet-btn');
+            if (sheetBtn) {
+                sheetBtn.addEventListener('click', function() {
+                    window.open('https://docs.google.com/spreadsheets/d/1kDmSU22AJwoe8JUa78GXrrVeuPtmMoF1PxVADGJBreU/edit?resourcekey=&gid=229698395#gid=229698395', '_blank');
+                });
+            }
+            
+            // Afficher les boutons après le chargement des données
+            setTimeout(() => {
+                const floatingButtons = document.querySelector('.floating-buttons');
+                if (floatingButtons) {
+                    floatingButtons.style.display = 'flex';
+                }
+            }, 1000);
+        });
+        // Système de recherche
+        let searchIndex = [];
+        let allWordsSet = new Set();
+        
+                // Indexer toutes les données pour la recherche (insensible à la casse)
+               // Indexer toutes les données pour la recherche (insensible à la casse et aux accents)
+        function buildSearchIndex() {
+            console.log("Construction de l'index de recherche...");
+            searchIndex = [];
+            allWordsSet = new Set(); // Réinitialiser l'ensemble
+            
+            journalData.forEach(entry => {
+                const entryData = {
+                    date: entry.date,
+                    formattedDate: entry.date.toLocaleDateString('fr-FR', { 
+                        weekday: 'long', 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                    }),
+                    shortDate: entry.date.toLocaleDateString('fr-FR'),
+                    content: '',
+                    lowerContent: '', // Version en minuscules
+                    lowerContentNoAccents: '', // Version sans accents
+                    fields: []
+                };
+                
+                // Extraire tout le texte de l'entrée
+                let allText = '';
+                let allLowerText = '';
+                
+                // Ajouter toutes les valeurs textuelles
+                Object.values(entry.rawData).forEach(value => {
+                    if (value && typeof value === 'string') {
+                        const cleanValue = value.trim();
+                        const lowerValue = cleanValue.toLowerCase();
+                        
+                        allText += cleanValue + ' ';
+                        allLowerText += lowerValue + ' ';
+                        entryData.content += cleanValue + ' ';
+                        
+                        // Extraire les mots pour le dictionnaire
+                        const words = lowerValue
+                            .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // Supprimer les accents
+                            .replace(/[^a-z0-9\s]/g, ' ')
+                            .split(/\s+/)
+                            .filter(word => word.length > 2);
+                        
+                        words.forEach(word => allWordsSet.add(word));
+                    }
+                });
+                
+                // AJOUTER CES 2 LIGNES ICI :
+                entryData.lowerContent = allLowerText;
+                entryData.lowerContentNoAccents = removeAccents(allLowerText);
+                
+                // Ajouter les champs structurés
+                Object.entries(entry.rawData).forEach(([key, value]) => {
+                    if (value && typeof value === 'string' && value.trim().length > 0) {
+                        const cleanValue = value.trim();
+                        entryData.fields.push({
+                            key: key,
+                            value: cleanValue,
+                            normalizedValue: cleanValue.toLowerCase(),
+                            normalizedNoAccents: removeAccents(cleanValue.toLowerCase()) // Sans accents
+                        });
+                    }
+                });
+                
+                searchIndex.push(entryData);
+            });
+            
+            console.log(`Index construit : ${searchIndex.length} entrées, ${allWordsSet.size} mots uniques`);
+        }
+        
+                        // Rechercher dans les données (insensible à la casse et aux accents)
+        function searchInJournal(query) {
+            if (!query || query.trim() === '') return [];
+            
+            const normalizedQuery = query.toLowerCase().trim();
+            const normalizedQueryNoAccents = removeAccents(normalizedQuery);
+            const queryWords = normalizedQuery.split(/\s+/).filter(word => word.length > 0);
+            const queryWordsNoAccents = normalizedQueryNoAccents.split(/\s+/).filter(word => word.length > 0);
+            
+            const results = searchIndex.map((entry, index) => {
+                let score = 0;
+                let matches = [];
+                let snippets = [];
+                
+                // Recherche insensible à la casse et aux accents par mots
+                queryWords.forEach((word, wordIndex) => {
+                    const lowerWord = word.toLowerCase();
+                    const lowerWordNoAccents = removeAccents(lowerWord);
+                    
+                    // Chercher avec et sans accents
+                    if (entry.lowerContent.includes(lowerWord) || 
+                        (entry.lowerContentNoAccents && entry.lowerContentNoAccents.includes(lowerWordNoAccents))) {
+                        score += 10;
+                        
+                        // Trouver les correspondances dans les champs
+                        entry.fields.forEach(field => {
+                            const matchesWord = field.normalizedValue.includes(lowerWord) || 
+                                               field.normalizedNoAccents.includes(lowerWordNoAccents);
+                            
+                            if (matchesWord) {
+                                matches.push(field.key);
+                                
+                                // Créer un snippet avec le texte trouvé
+                                const fieldValue = field.value;
+                                let wordIndexInText = fieldValue.toLowerCase().indexOf(lowerWord);
+                                
+                                // Si pas trouvé avec accents, chercher sans accents
+                                if (wordIndexInText === -1) {
+                                    const fieldValueNoAccents = removeAccents(fieldValue.toLowerCase());
+                                    const noAccentIndex = fieldValueNoAccents.indexOf(lowerWordNoAccents);
+                                    if (noAccentIndex !== -1) {
+                                        wordIndexInText = noAccentIndex;
+                                    }
+                                }
+                                
+                                if (wordIndexInText !== -1) {
+                                    const start = Math.max(0, wordIndexInText - 30);
+                                    const end = Math.min(fieldValue.length, wordIndexInText + lowerWord.length + 70);
+                                    let snippet = fieldValue.substring(start, end);
+                                    
+                                    if (start > 0) snippet = '...' + snippet;
+                                    if (end < fieldValue.length) snippet = snippet + '...';
+                                    
+                                    // Mettre en évidence le mot trouvé
+                                    const regex = new RegExp(`(${word})`, 'gi');
+                                    const highlightedSnippet = snippet.replace(
+                                        regex,
+                                        '<span class="result-highlight">$1</span>'
+                                    );
+                                    
+                                    snippets.push(highlightedSnippet);
+                                }
+                            }
+                        });
+                    }
+                });
+                
+                // Recherche par date
+                const shortDateLower = entry.shortDate.toLowerCase();
+                const shortDateNoAccents = removeAccents(shortDateLower);
+                
+                if (shortDateLower.includes(normalizedQuery) || 
+                    shortDateNoAccents.includes(normalizedQueryNoAccents)) {
+                    score += 50;
+                    matches.push('date');
+                }
+                
+                // Recherche exacte de phrase
+                if (entry.lowerContent.includes(normalizedQuery) ||
+                    (entry.lowerContentNoAccents && entry.lowerContentNoAccents.includes(normalizedQueryNoAccents))) {
+                    score += 20;
+                    matches.push('phrase exacte');
+                }
+                
+                return {
+                    score,
+                    entry: journalData[index],
+                    formattedDate: entry.formattedDate,
+                    shortDate: entry.shortDate,
+                    matches: [...new Set(matches)].slice(0, 5),
+                    snippets: [...new Set(snippets)].slice(0, 3)
+                };
+            }).filter(result => result.score > 0)
+              .sort((a, b) => b.score - a.score)
+              .slice(0, 20);
+            
+            return results;
+        }
+        
+                // Générer des suggestions (insensible à la casse)
+        function generateSuggestions(query) {
+            if (!query || query.trim() === '') return [];
+            
+            const normalizedQuery = query.toLowerCase().trim();
+            const suggestions = [];
+            
+            // Suggestions de mots du dictionnaire (insensible à la casse)
+            allWordsSet.forEach(word => {
+                if (word.toLowerCase().startsWith(normalizedQuery) && word.toLowerCase() !== normalizedQuery) {
+                    suggestions.push({
+                        type: 'mot',
+                        text: word,
+                        display: word
+                    });
+                }
+            });
+            
+            // Suggestions de dates (insensible à la casse)
+            searchIndex.forEach(entry => {
+                if (entry.shortDate.toLowerCase().includes(normalizedQuery)) {
+                    suggestions.push({
+                        type: 'date',
+                        text: entry.shortDate,
+                        display: `📅 ${entry.shortDate}`,
+                        date: entry.date
+                    });
+                }
+            });
+            
+            // Retourner les meilleures suggestions
+            return suggestions.slice(0, 10);
+        }
+        
+        // Afficher les suggestions
+        function showSuggestions(suggestions) {
+            const dropdown = document.getElementById('suggestions-dropdown');
+            
+            if (!suggestions || suggestions.length === 0) {
+                dropdown.style.display = 'none';
+                return;
+            }
+            
+            let html = '';
+            
+            suggestions.forEach(suggestion => {
+                let icon = '🔍';
+                if (suggestion.type === 'date') icon = '📅';
+                if (suggestion.type === 'mot') icon = '📝';
+                
+                html += `
+                    <div class="suggestion-item" data-suggestion="${suggestion.text}">
+                        <i class="fas fa-${suggestion.type === 'date' ? 'calendar' : 'search'}"></i>
+                        <div class="suggestion-text">${suggestion.display}</div>
+                        ${suggestion.type === 'date' ? `<div class="suggestion-date">${suggestion.text}</div>` : ''}
+                    </div>
+                `;
+            });
+            
+            dropdown.innerHTML = html;
+            dropdown.style.display = 'block';
+            
+            // Ajouter les événements de clic
+            document.querySelectorAll('.suggestion-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const suggestion = this.getAttribute('data-suggestion');
+                    document.getElementById('search-input').value = suggestion;
+                    performSearch(suggestion);
+                    dropdown.style.display = 'none';
+                });
+            });
+        }
+        
+        // Effectuer une recherche
+        function performSearch(query) {
+            const results = searchInJournal(query);
+            displaySearchResults(results, query);
+        }
+        
+        // Afficher les résultats
+        function displaySearchResults(results, query) {
+            const resultsList = document.getElementById('results-list');
+            const searchResults = document.getElementById('search-results');
+            
+            if (results.length === 0) {
+                resultsList.innerHTML = `
+                    <div class="no-results">
+                        <i class="fas fa-search"></i>
+                        <p>Aucun résultat trouvé pour "<strong>${query}</strong>"</p>
+                        <p style="margin-top: 10px; font-size: 14px; color: #888;">
+                            Essayez avec d'autres mots-clés ou vérifiez l'orthographe.
+                        </p>
+                    </div>
+                `;
+            } else {
+                let html = '';
+                
+                results.forEach(result => {
+                    html += `
+                        <div class="result-item" data-date="${getDateKey(result.entry.date)}">
+                            <div class="result-date">
+                                <i class="fas fa-calendar-day"></i>
+                                ${result.formattedDate}
+                            </div>
+                            ${result.snippets.length > 0 ? `
+                                <div class="result-snippet">
+                                    ${result.snippets.join('<br>')}
+                                </div>
+                            ` : ''}
+                            <div class="result-matches">
+                                <i class="fas fa-bullseye"></i>
+                                ${result.matches.length} correspondance${result.matches.length > 1 ? 's' : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                resultsList.innerHTML = html;
+                
+                // Ajouter les événements de clic
+                document.querySelectorAll('.result-item').forEach(item => {
+                    item.addEventListener('click', function() {
+                        const dateKey = this.getAttribute('data-date');
+                        const [year, month, day] = dateKey.split('-').map(Number);
+                        const date = new Date(Date.UTC(year, month - 1, day));
+                        
+                        currentDate = date;
+                        
+                        // Mettre à jour le calendrier
+                        const normalizedDate = normalizeDate(date);
+                        const dateObj = new Date(Date.UTC(year, month - 1, day));
+                        currentMonth = dateObj.getMonth();
+                        currentYear = dateObj.getFullYear();
+                        renderCalendar(currentMonth, currentYear);
+                        
+                        // Afficher l'entrée
+                        showEntryForDate(normalizedDate);
+                        
+                        // Fermer les résultats
+                        searchResults.style.display = 'none';
+                        
+                        // Faire défiler vers le haut
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    });
+                });
+            }
+            
+            searchResults.style.display = 'block';
+        }
+        
+        // Initialiser la recherche après le chargement des données
+        document.addEventListener('DOMContentLoaded', function() {
+            // Construire l'index après le chargement des données
+            setTimeout(() => {
+                if (journalData.length > 0) {
+                    buildSearchIndex();
+                }
+            }, 500);
+            
+            // Éléments de l'interface
+            const searchInput = document.getElementById('search-input');
+            const searchButton = document.getElementById('search-button');
+            const suggestionsDropdown = document.getElementById('suggestions-dropdown');
+            const closeResults = document.getElementById('close-results');
+            
+            if (!searchInput) return;
+            
+            // Recherche au clic sur le bouton
+            searchButton.addEventListener('click', function() {
+                const query = searchInput.value.trim();
+                if (query) {
+                    performSearch(query);
+                    suggestionsDropdown.style.display = 'none';
+                }
+            });
+            
+            // Recherche avec Entrée
+            searchInput.addEventListener('keyup', function(event) {
+                if (event.key === 'Enter') {
+                    const query = searchInput.value.trim();
+                    if (query) {
+                        performSearch(query);
+                        suggestionsDropdown.style.display = 'none';
+                    }
+                }
+            });
+            
+            // Suggestions en temps réel
+            let debounceTimer;
+            searchInput.addEventListener('input', function() {
+                clearTimeout(debounceTimer);
+                const query = searchInput.value.trim();
+                
+                if (query.length > 1) {
+                    debounceTimer = setTimeout(() => {
+                        const suggestions = generateSuggestions(query);
+                        showSuggestions(suggestions);
+                    }, 300);
+                } else {
+                    suggestionsDropdown.style.display = 'none';
+                }
+            });
+            
+            // Fermer les suggestions en cliquant ailleurs
+            document.addEventListener('click', function(event) {
+                if (!searchInput.contains(event.target) && !suggestionsDropdown.contains(event.target)) {
+                    suggestionsDropdown.style.display = 'none';
+                }
+            });
+            
+            // Fermer les résultats
+            if (closeResults) {
+                closeResults.addEventListener('click', function() {
+                    document.getElementById('search-results').style.display = 'none';
+                });
+            }
+            
+            // Recherche globale (Ctrl+F)
+            document.addEventListener('keydown', function(event) {
+                if ((event.ctrlKey || event.metaKey) && event.key === 'f') {
+                    event.preventDefault();
+                    searchInput.focus();
+                    searchInput.select();
+                }
+            });
+        });
+        // Fonction pour extraire les URLs de photos
+        function extractPhotoUrls(text) {
+            if (!text || typeof text !== 'string') return [];
+            
+            // Nettoyer le texte
+            let cleanText = text.trim();
+            cleanText = cleanText.replace(/["']/g, '');
+            
+            // Expressions régulières pour trouver des URLs
+            const urlPatterns = [
+                /(https?:\/\/[^\s<>"]+\.(?:jpg|jpeg|png|gif|webp|bmp|JPG|JPEG|PNG|GIF|WEBP|BMP))/gi,
+                /(https?:\/\/drive\.google\.com\/[^\s<>"]+)/gi,
+                /(https?:\/\/photos\.app\.goo\.gl\/[^\s<>"]+)/gi,
+                /(https?:\/\/[^\s<>"]+\.google\.com\/[^\s<>"]+)/gi
+            ];
+            
+            const urls = new Set();
+            
+            // Chercher avec chaque pattern
+            urlPatterns.forEach(pattern => {
+                const matches = cleanText.match(pattern);
+                if (matches) {
+                    matches.forEach(url => {
+                        const cleanUrl = url.replace(/[,\s;]+$/, '').trim();
+                        if (cleanUrl.length > 10) {
+                            urls.add(cleanUrl);
+                        }
+                    });
+                }
+            });
+            
+            // Chercher les URLs entre parenthèses ou crochets
+            const bracketPattern = /\[(https?:\/\/[^\]]+)\]/g;
+            let bracketMatch;
+            while ((bracketMatch = bracketPattern.exec(cleanText)) !== null) {
+                urls.add(bracketMatch[1].trim());
+            }
+            
+            return Array.from(urls);
+        }
+        
+        // Fonction pour générer une vignette Google Drive
+        function generateDriveThumbnail(url) {
+            if (!url || typeof url !== 'string') return '';
+            
+            if (url.includes('drive.google.com')) {
+                // Fichier Google Drive
+                if (url.includes('/file/d/')) {
+                    const fileId = url.split('/file/d/')[1].split('/')[0];
+                    return `https://drive.google.com/thumbnail?sz=w400&id=${fileId}`;
+                }
+                // Lien direct avec id=
+                else if (url.includes('id=')) {
+                    const fileId = url.split('id=')[1].split('&')[0];
+                    return `https://drive.google.com/thumbnail?sz=w400&id=${fileId}`;
+                }
+                // Lien /open?id=
+                else if (url.includes('/open?id=')) {
+                    const fileId = url.split('/open?id=')[1];
+                    return `https://drive.google.com/thumbnail?sz=w400&id=${fileId}`;
+                }
+            }
+            
+            // Pour les autres URLs, utiliser l'URL directe
+            return url;
+        }
+        
+        // Fonction pour déterminer le type de fichier
+        function getFileType(url) {
+            if (!url) return 'unknown';
+            
+            const lowerUrl = url.toLowerCase();
+            
+            if (lowerUrl.includes('drive.google.com')) {
+                if (lowerUrl.includes('/folders/')) {
+                    return 'folder';
+                }
+                return 'drive';
+            }
+            
+            if (lowerUrl.includes('.jpg') || lowerUrl.includes('.jpeg')) return 'jpg';
+            if (lowerUrl.includes('.png')) return 'png';
+            if (lowerUrl.includes('.gif')) return 'gif';
+            if (lowerUrl.includes('.webp')) return 'webp';
+            if (lowerUrl.includes('.bmp')) return 'bmp';
+            
+            return 'unknown';
+        }
+        
+        // Fonction pour générer un aperçu de photo
+        function generatePhotoPreview(photoUrls) {
+            if (!photoUrls || photoUrls.length === 0) return '';
+            
+            let html = '<div class="photos-preview-container">';
+            
+            photoUrls.forEach((url, index) => {
+                const cleanUrl = url.trim();
+                const thumbnailUrl = generateDriveThumbnail(cleanUrl);
+                const fileType = getFileType(cleanUrl);
+                const fileName = cleanUrl.split('/').pop() || `Photo ${index + 1}`;
+                
+                // Pour les dossiers Google Drive
+                if (fileType === 'folder') {
+                    html += `
+                        <div class="photo-preview-item">
+                            <a href="${cleanUrl}" target="_blank" class="photo-thumbnail-link" title="Ouvrir le dossier Google Drive">
+                                <img src="https://img.icons8.com/color/96/000000/google-drive-folder.png" 
+                                     alt="Dossier Google Drive" 
+                                     class="photo-thumbnail"
+                                     onerror="this.onerror=null; this.src='https://via.placeholder.com/150/4CAF50/ffffff?text=📁'">
+                                <div class="photo-overlay">📁 Dossier Drive</div>
+                            </a>
+                            <div class="photo-info">Dossier ${index + 1}</div>
+                        </div>
+                    `;
+                }
+                // Pour les fichiers images
+                else {
+                    html += `
+                        <div class="photo-preview-item">
+                            <a href="${cleanUrl}" target="_blank" class="photo-thumbnail-link" 
+                               data-index="${index}" 
+                               data-url="${cleanUrl}"
+                               data-thumbnail="${thumbnailUrl}"
+                               title="${fileName}">
+                                <img src="${thumbnailUrl}" 
+                                     alt="Photo ${index + 1}" 
+                                     class="photo-thumbnail"
+                                     onerror="this.onerror=null; this.src='https://via.placeholder.com/150/cccccc/666666?text=Image'">
+                                <div class="photo-overlay">📸 Photo ${index + 1}</div>
+                            </a>
+                            <div class="photo-info">${fileName.substring(0, 20)}${fileName.length > 20 ? '...' : ''}</div>
+                        </div>
+                    `;
+                }
+            });
+            
+            html += '</div>';
+            
+            // Ajouter un message d'information
+            html += `<div style="font-size:0.85rem; color:#666; margin-top:10px; display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-info-circle"></i>
+                        <span>${photoUrls.length} photo${photoUrls.length > 1 ? 's' : ''} - Cliquez pour agrandir</span>
+                    </div>`;
+            
+            return html;
+        }
     </script>
+    <!-- Boutons flottants -->
+    <div class="floating-buttons">
+        <button class="floating-btn tooltip" id="form-btn" data-tooltip="Nouvelle entrée journal">
+            <i class="fas fa-plus"></i>
+        </button>
+        <button class="floating-btn tooltip" id="sheet-btn" data-tooltip="Voir le Google Sheet">
+            <i class="fas fa-table"></i>
+        </button>
+    </div>
+    <!-- Modal pour aperçu photo -->
+    <div id="photoModal" class="photo-modal">
+        <button class="close-modal">&times;</button>
+        <div class="gallery-controls">
+            <button class="gallery-btn prev-btn" id="prevPhotoBtn">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="gallery-btn next-btn" id="nextPhotoBtn">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+        <div class="modal-content">
+            <img class="modal-photo" id="modalPhoto" src="" alt="Photo">
+            <div class="modal-caption" id="modalCaption"></div>
+            <div class="gallery-counter" id="galleryCounter"></div>
+        </div>
+    </div>
 </body>
 </html>
