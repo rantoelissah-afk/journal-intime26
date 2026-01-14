@@ -2860,6 +2860,8 @@
         let currentYear = currentDate.getFullYear();
         let csvHeaders = [];
         let allStats = {};
+        let currentPhotoIndex = 0;
+        let currentPhotoUrls = [];
         
         // Mise à jour avec le nouveau lien
         const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTMgDO2dFTZVN5sLUkyiT69SnPmqVcD5AQNAvZp3jp6h_qyQ8FZw3CRQ_eQ8xWJE-ySDxsXPy-t0HD4/pub?output=csv";
@@ -5730,6 +5732,11 @@
                 entryHTML += '</div></div>';
                 journalDisplay.innerHTML = entryHTML;
                 
+                // Initialiser la galerie photo après affichage
+                setTimeout(() => {
+                    initPhotoGallery();
+                }, 100);
+                
             } else {
                 const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
                 const formattedDate = date.toLocaleDateString('fr-FR', options);
@@ -6106,7 +6113,8 @@
                                data-index="${index}" 
                                data-url="${cleanUrl}"
                                data-thumbnail="${thumbnailUrl}"
-                               title="${fileName}">
+                               title="${fileName}"
+                               onclick="openPhotoModal(event, ${index}, ${JSON.stringify(photoUrls)})">
                                 <img src="${thumbnailUrl}" 
                                      alt="Photo ${index + 1}" 
                                      class="photo-thumbnail"
@@ -6127,6 +6135,109 @@
                     </div>`;
             
             return html;
+        }
+        
+        // Fonction pour ouvrir la modal photo
+        function openPhotoModal(event, index, photoUrls) {
+            event.preventDefault();
+            
+            currentPhotoIndex = index;
+            currentPhotoUrls = photoUrls;
+            
+            const modal = document.getElementById('photoModal');
+            const modalPhoto = document.getElementById('modalPhoto');
+            const galleryCounter = document.getElementById('galleryCounter');
+            
+            const currentUrl = currentPhotoUrls[currentPhotoIndex];
+            const thumbnailUrl = generateDriveThumbnail(currentUrl);
+            
+            modalPhoto.src = thumbnailUrl;
+            modalPhoto.alt = `Photo ${currentPhotoIndex + 1}`;
+            
+            galleryCounter.textContent = `${currentPhotoIndex + 1} / ${currentPhotoUrls.length}`;
+            
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            
+            // Mettre à jour la navigation
+            updateModalNavigation();
+        }
+        
+        // Fonction pour fermer la modal
+        function closePhotoModal() {
+            const modal = document.getElementById('photoModal');
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+        
+        // Fonction pour naviguer entre les photos
+        function navigatePhoto(direction) {
+            if (direction === 'next') {
+                currentPhotoIndex = (currentPhotoIndex + 1) % currentPhotoUrls.length;
+            } else {
+                currentPhotoIndex = (currentPhotoIndex - 1 + currentPhotoUrls.length) % currentPhotoUrls.length;
+            }
+            
+            const modalPhoto = document.getElementById('modalPhoto');
+            const galleryCounter = document.getElementById('galleryCounter');
+            
+            const currentUrl = currentPhotoUrls[currentPhotoIndex];
+            const thumbnailUrl = generateDriveThumbnail(currentUrl);
+            
+            modalPhoto.src = thumbnailUrl;
+            modalPhoto.alt = `Photo ${currentPhotoIndex + 1}`;
+            
+            galleryCounter.textContent = `${currentPhotoIndex + 1} / ${currentPhotoUrls.length}`;
+            
+            // Animation de transition
+            modalPhoto.style.opacity = 0;
+            setTimeout(() => {
+                modalPhoto.style.opacity = 1;
+            }, 300);
+        }
+        
+        // Mettre à jour la navigation de la modal
+        function updateModalNavigation() {
+            const prevBtn = document.getElementById('prevPhotoBtn');
+            const nextBtn = document.getElementById('nextPhotoBtn');
+            
+            if (prevBtn) {
+                prevBtn.onclick = () => navigatePhoto('prev');
+            }
+            
+            if (nextBtn) {
+                nextBtn.onclick = () => navigatePhoto('next');
+            }
+        }
+        
+        // Initialiser la galerie photo
+        function initPhotoGallery() {
+            const modal = document.getElementById('photoModal');
+            const closeBtn = document.querySelector('.close-modal');
+            
+            if (closeBtn) {
+                closeBtn.onclick = closePhotoModal;
+            }
+            
+            // Fermer la modal en cliquant en dehors
+            modal.addEventListener('click', function(event) {
+                if (event.target === modal) {
+                    closePhotoModal();
+                }
+            });
+            
+            // Navigation au clavier
+            document.addEventListener('keydown', function(event) {
+                if (modal.style.display === 'flex') {
+                    if (event.key === 'Escape') {
+                        closePhotoModal();
+                    } else if (event.key === 'ArrowRight') {
+                        navigatePhoto('next');
+                    } else if (event.key === 'ArrowLeft') {
+                        navigatePhoto('prev');
+                    }
+                }
+            });
         }
         
         // Système de recherche
@@ -6437,6 +6548,9 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Initialiser les onglets
             initTabs();
+            
+            // Initialiser la galerie photo
+            initPhotoGallery();
             
             // Charger les données
             loadJournalData();
